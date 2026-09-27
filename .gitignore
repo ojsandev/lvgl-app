@@ -1,0 +1,9 @@
+/build/
+/.idea/
+/.vscode/
+.DS_Store
+
+# Conan generated files
+/conan.lock
+.cache/
+.zed/
