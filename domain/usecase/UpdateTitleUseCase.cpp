@@ -1,4 +1,4 @@
-#include "usecase//UpdateTitleUseCase.h"
+#include "usecase/UpdateTitleUseCase.h"
 
 using namespace domain;
 
