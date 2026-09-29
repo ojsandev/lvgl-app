@@ -3,7 +3,7 @@ from conan.tools.cmake import CMakeDeps, CMakeToolchain
 
 
 class MyLvlAppConan(ConanFile):
-    name = "my-lvl-app"
+    name = "my-lvgl-app"
     version = "0.1.0"
 
     settings = "os", "arch", "compiler", "build_type"
