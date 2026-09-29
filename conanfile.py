@@ -11,6 +11,7 @@ class MyLvlAppConan(ConanFile):
     requires = (
         "sdl/2.32.10",
         "libuuid/1.0.3",
+        "kangaru/4.3.2",
     )
 
     def generate(self):

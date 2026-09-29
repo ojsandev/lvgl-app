@@ -1,19 +1,20 @@
-#include <memory>
+#include <kangaru/kangaru.hpp>
 
 #include "App.h"
-#include "domain/usecase/UpdateTitleUseCase.h"
-#include "ui/MainViewModel.h"
+#include "app/di/AppModule.h"
 
 int main()
 {
-    auto useCase = std::make_shared<domain::UpdateTitleUseCase>();
-    const auto viewModel = std::make_shared<ui::MainViewModel>("Initial title", useCase);
+    kgr::container container;
+
+    auto& mainViewModel = container.service<app::di::MainViewModel>();
 
     lv::App app(
         {
             .width = 700,
             .height = 400
-        }, viewModel
+        },
+        mainViewModel
     );
 
     app.run();

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <memory>
+#include <SDL_events.h>
 
 #include "lv/core/app.hpp"
 
-namespace ui
+namespace app::ui
 {
     class MainView;
     class MainViewModel;
@@ -21,10 +22,7 @@ namespace lv
             int height;
         };
 
-        App(
-            Config config,
-            const std::shared_ptr<ui::MainViewModel>& viewModel
-        );
+        App(Config config, app::ui::MainViewModel& viewModel);
 
         ~App();
 
@@ -41,14 +39,24 @@ namespace lv
         bool isRunning() const noexcept;
 
     private:
-        void processEvents();
+        static void processEvents();
 
+        static int SDLCALL onWindowEvent(
+            void* userdata,
+            SDL_Event* event
+        );
+
+    private:
         InitGuard m_initGuard;
 
         Config m_config;
 
-        bool m_isRunning{true};
+        bool m_isRunning;
 
-        std::unique_ptr<ui::MainView> m_view;
+        app::ui::MainViewModel& m_viewModel;
+
+        std::unique_ptr<app::ui::MainView> m_view;
+
+        bool m_isWindowClosed;
     };
 }

@@ -8,19 +8,19 @@ namespace domain
     class IUpdateTitleUseCase;
 }
 
-namespace ui
+namespace app::ui
 {
     class MainViewModel
     {
     public:
-        MainViewModel(
-            std::string initialTitle,
-            const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase
+        explicit MainViewModel(
+        const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase
         );
 
         void handleTitleUpdate();
 
-        const std::string& title();
+        [[nodiscard]]
+        const std::string& title() const noexcept;
 
     private:
         std::string m_title;

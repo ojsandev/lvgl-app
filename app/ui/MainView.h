@@ -5,7 +5,7 @@
 #include "lv/core/display.hpp"
 #include "lv/widgets/label.hpp"
 
-namespace ui
+namespace app::ui
 {
     class MainViewModel;
 
@@ -15,8 +15,11 @@ namespace ui
         MainView(
             int32_t width,
             int32_t height,
-            const std::shared_ptr<MainViewModel>& viewModel
+            MainViewModel& viewModel
         );
+        ~MainView() = default;
+        MainView(const MainView&) = delete;
+        MainView& operator=(const MainView&) = delete;
 
     private:
         void init();
@@ -26,7 +29,7 @@ namespace ui
         void onHover(const lv::Event& event);
         void onHoverLabel(const lv::Event& event);
 
-        std::shared_ptr<MainViewModel> m_viewModel;
+        MainViewModel& m_viewModel;
 
         lv::SDLDisplay m_display;
         lv::ObjectView m_screen;

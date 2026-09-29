@@ -4,6 +4,7 @@ add_library(app
         App.h
         ui/MainView.cpp
         ui/MainView.h
+        di/AppModule.h
 )
 
 target_include_directories(app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
