@@ -1,0 +1,76 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# Line width
+ColumnLimit: 100
+
+# Braces
+BreakBeforeBraces: Allman
+BraceWrapping:
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+
+# Short constructs
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+
+# Pointers and references
+PointerAlignment: Left
+ReferenceAlignment: Left
+DerivePointerAlignment: false
+
+# Spaces
+SpaceBeforeParens: ControlStatements
+SpaceBeforeAssignmentOperators: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceAfterCStyleCast: false
+
+# C++ style
+Cpp11BracedListStyle: true
+Standard: c++20
+
+# Includes
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive
+IncludeCategories:
+  - Regex: '^<.*>$'
+    Priority: 1
+  - Regex: '^".*"'
+    Priority: 2
+
+# Comments
+FixNamespaceComments: true
+ReflowComments: true
+CommentPragmas: '^ IWYU pragma:'
+
+# Constructors / inheritance
+ConstructorInitializerIndentWidth: 4
+PackConstructorInitializers: BinPack
+AllowAllConstructorInitializersOnNextLine: false
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+
+# Function declarations
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+
+# Line breaking penalties
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakString: 1000

@@ -1,28 +1,20 @@
 #include "App.h"
 
-#include <print>
-
 #include <SDL2/SDL.h>
+#include <print>
 
 #include "ui/MainView.h"
 #include "ui/MainViewModel.h"
 
 using namespace lv;
 
-App::App(
-    const Config config,
-    app::ui::MainViewModel& viewModel
-)
-    : m_config(config),
-      m_isRunning(false),
-      m_viewModel(viewModel),
-      m_isWindowClosed()
+App::App(const Config config, app::ui::MainViewModel& viewModel)
+    : m_config(config)
+    , m_isRunning(false)
+    , m_viewModel(viewModel)
+    , m_isWindowClosed()
 {
-    m_view = std::make_unique<app::ui::MainView>(
-        m_config.width,
-        m_config.height,
-        m_viewModel
-    );
+    m_view = std::make_unique<app::ui::MainView>(m_config.width, m_config.height, m_viewModel);
 
     SDL_AddEventWatch(&App::onWindowEvent, this);
 }
@@ -34,11 +26,9 @@ App::~App()
 
 void App::run()
 {
-    std::print(
-        "App::run: starting main loop with width: {}, height: {}\n",
+    std::print("App::run: starting main loop with width: {}, height: {}\n",
         m_config.width,
-        m_config.height
-    );
+        m_config.height);
 
     m_isRunning = true;
 
@@ -100,11 +90,9 @@ int SDLCALL App::onWindowEvent(void* userdata, SDL_Event* event)
             break;
 
         case SDL_WINDOWEVENT_MOVED:
-            std::print(
-                "App::onWindowEvent: Window moved: {}, {}\n",
+            std::print("App::onWindowEvent: Window moved: {}, {}\n",
                 event->window.data1,
-                event->window.data2
-            );
+                event->window.data2);
             break;
 
         case SDL_WINDOWEVENT_HIDDEN:

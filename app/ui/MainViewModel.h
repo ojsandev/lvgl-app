@@ -3,27 +3,22 @@
 #include <memory>
 #include <string>
 
-namespace domain
-{
-    class IUpdateTitleUseCase;
+namespace domain {
+class IUpdateTitleUseCase;
 }
 
-namespace app::ui
-{
-    class MainViewModel
-    {
-    public:
-        explicit MainViewModel(
-        const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase
-        );
+namespace app::ui {
+class MainViewModel {
+  public:
+    explicit MainViewModel(const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase);
 
-        void handleTitleUpdate();
+    void handleTitleUpdate();
 
-        [[nodiscard]]
-        const std::string& title() const noexcept;
+    [[nodiscard]]
+    const std::string& title() const noexcept;
 
-    private:
-        std::string m_title;
-        std::shared_ptr<domain::IUpdateTitleUseCase> m_updateTitleUseCase;
-    };
-}
+  private:
+    std::string m_title;
+    std::shared_ptr<domain::IUpdateTitleUseCase> m_updateTitleUseCase;
+};
+} // namespace app::ui

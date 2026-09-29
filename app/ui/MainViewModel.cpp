@@ -1,15 +1,14 @@
 #include "MainViewModel.h"
 
 #include <utility>
+
 #include "domain/usecase/IUpdateTitleUseCase.h"
 
 using namespace app::ui;
 
-MainViewModel::MainViewModel(
-    const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase
-)
-    : m_title("Initial Title"),
-      m_updateTitleUseCase(updateTitleUseCase)
+MainViewModel::MainViewModel(const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase)
+    : m_title("Initial Title")
+    , m_updateTitleUseCase(updateTitleUseCase)
 {
 }
 

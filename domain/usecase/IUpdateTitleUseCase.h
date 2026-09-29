@@ -2,13 +2,11 @@
 
 #include <string>
 
-namespace domain
-{
-    class IUpdateTitleUseCase
-    {
-    public:
-        virtual ~IUpdateTitleUseCase() = default;
+namespace domain {
+class IUpdateTitleUseCase {
+  public:
+    virtual ~IUpdateTitleUseCase() = default;
 
-        virtual std::string execute() = 0;
-    };
-}
+    virtual std::string execute() = 0;
+};
+} // namespace domain
