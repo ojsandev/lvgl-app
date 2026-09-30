@@ -1,10 +1,6 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - master
-
   pull_request:
     branches:
       - master
@@ -41,13 +37,24 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential \
-            cmake \
-            ninja-build \
-            pkg-config \
-            libssl-dev \
-            libsdl2-dev \
-            uuid-dev
+          build-essential \
+          gcc-14 \
+          g++-14 \
+          cmake \
+          ninja-build \
+          pkg-config \
+          libssl-dev \
+          libsdl2-dev \
+          uuid-dev
+
+      - name: Configure GCC 14
+        if: runner.os == 'Linux'
+        run: |
+          echo "CC=gcc-14" >> "$GITHUB_ENV"
+          echo "CXX=g++-14" >> "$GITHUB_ENV"
+          
+          gcc-14 --version
+          g++-14 --version
 
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
