@@ -31,9 +31,6 @@ class App {
     void run();
     void stop();
 
-    [[nodiscard]]
-    bool isRunning() const noexcept;
-
   private:
     static void processEvents();
 
@@ -49,7 +46,5 @@ class App {
     app::ui::MainViewModel& m_viewModel;
 
     std::unique_ptr<app::ui::MainView> m_view;
-
-    bool m_isWindowClosed;
 };
 } // namespace lv

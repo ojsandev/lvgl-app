@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(
-        my-lvl-app
+        my-lvgl-app
         VERSION 0.1.0
         LANGUAGES C CXX
 )
@@ -27,17 +27,16 @@ set(
         "Path to lv_conf.h"
 )
 
-# LVGL itself
 set(CONFIG_LV_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(CONFIG_LV_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
+set(CONFIG_LV_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(CONFIG_LV_USE_THORVG_INTERNAL ON CACHE BOOL "" FORCE)
 
 # =========================================================
 # Dependencies
 # =========================================================
 
-set(LIBS SDL2 libuuid kangaru)
-
+set(LIBS SDL2 kangaru Boost OpenSSL)
 foreach (lib ${LIBS})
     find_package(${lib} CONFIG REQUIRED)
 endforeach ()
@@ -56,7 +55,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(lvgl)
 
-# LVGL SDL backend requires SDL2.
 target_link_libraries(
         lvgl
         PUBLIC
@@ -67,8 +65,6 @@ target_link_libraries(
 # aptumfr/lv - C++ wrapper
 # =========================================================
 
-# The wrapper enables these by default.
-# We don't need its examples/demos/tests in our application.
 set(LV_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(LV_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
 set(LV_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -81,42 +77,46 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(lv_cpp)
 
-# aptumfr/lv currently sets CMAKE_CXX_STANDARD to C++20
-# globally. Restore C++26 for our project.
+# aptumfr/lv currently changes the global standard to C++20.
+# Restore C++26 for the application project.
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # =========================================================
+# Project modules
+# =========================================================
+
+add_subdirectory(domain)
+add_subdirectory(data)
+add_subdirectory(infra)
+add_subdirectory(app)
+add_subdirectory(tests)
+
+# =========================================================
 # Application
 # =========================================================
 
-add_subdirectory(app)
-add_subdirectory(domain)
-
-add_executable(my-lvl-app
+add_executable(
+        my-lvgl-app
         app/main.cpp
         app/App.cpp
         app/App.h
+        tests/tls/TlsTest.cpp
 )
 
 target_link_libraries(
-        my-lvl-app
+        my-lvgl-app
         PRIVATE
-        app
-        lv::lv
-        libuuid::libuuid
-        kangaru
+          app
+          data
+          infra
+          lv::lv
+          kangaru
 )
 
 target_compile_features(
-        my-lvl-app
-        PRIVATE
-        cxx_std_26
-)
-
-target_compile_features(
-        my-lvl-app
+        my-lvgl-app
         PRIVATE
         cxx_std_26
 )
@@ -126,11 +126,11 @@ target_compile_features(
 # =========================================================
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(
-            my-lvl-app
-            PRIVATE
-            -Wall
-            -Wextra
-            -Wpedantic
-    )
-endif ()
+  target_compile_options(
+          my-lvgl-app
+          PRIVATE
+          -Wall
+          -Wextra
+          -Wpedantic
+  )
+endif()
