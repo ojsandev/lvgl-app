@@ -126,7 +126,6 @@ add_executable(
         app/main.cpp
         app/App.cpp
         app/App.h
-        tests/tls/TlsTest.cpp
 )
 
 target_link_libraries(
