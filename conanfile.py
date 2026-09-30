@@ -25,3 +25,6 @@ class MyLvlAppConan(ConanFile):
 
     def configure(self):
         self.options["boost/*"].without_cobalt = True
+
+        if self.settings.os == "Linux":
+            self.options["sdl/*"].pulse = False
