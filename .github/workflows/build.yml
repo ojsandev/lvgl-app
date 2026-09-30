@@ -123,7 +123,7 @@ jobs:
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            ./build/debug/Debug/tests/tls-test.exe
+            ./build/debug/tests/Debug/tls-test.exe
           else
             ./build/debug/tests/tls-test
           fi
