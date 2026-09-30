@@ -115,11 +115,9 @@ target_link_libraries(
           kangaru
 )
 
-target_compile_features(
-        my-lvgl-app
-        PRIVATE
-        cxx_std_26
-)
+set_property(TARGET my-lvgl-app PROPERTY CXX_STANDARD 26)
+set_property(TARGET my-lvgl-app PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET my-lvgl-app PROPERTY CXX_EXTENSIONS OFF)
 
 # =========================================================
 # Warnings
