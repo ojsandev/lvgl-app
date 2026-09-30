@@ -32,35 +32,38 @@ jobs:
           python -m pip install --upgrade pip
           pip install conan
 
+      # Linux
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-          build-essential \
-          gcc-14 \
-          g++-14 \
-          cmake \
-          ninja-build \
-          pkg-config \
-          libssl-dev \
-          libsdl2-dev \
-          uuid-dev
+            build-essential \
+            gcc-14 \
+            g++-14 \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            uuid-dev
 
       - name: Configure GCC 14
         if: runner.os == 'Linux'
         run: |
           echo "CC=gcc-14" >> "$GITHUB_ENV"
           echo "CXX=g++-14" >> "$GITHUB_ENV"
-          
+
           gcc-14 --version
           g++-14 --version
 
+      # macOS
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: |
           brew install cmake ninja openssl@3 sdl2
 
+      # Windows
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         shell: pwsh
@@ -92,12 +95,25 @@ jobs:
         run: |
           echo "=== Conan ==="
           conan --version
-          
+
           echo "=== Conan profile ==="
           conan profile show
-          
+
           echo "=== Conan remotes ==="
           conan remote list
+
+      - name: Inspect Conan graph
+        shell: bash
+        run: |
+          conan graph info . \
+            -s build_type=Debug \
+            --format=json > conan-graph.json
+
+          echo "=== OpenSSL references ==="
+          grep -n -i "openssl" conan-graph.json || true
+
+          echo "=== Conan graph ==="
+          cat conan-graph.json
 
       - name: Install Conan dependencies
         shell: bash
