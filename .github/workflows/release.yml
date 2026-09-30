@@ -22,7 +22,7 @@ jobs:
           - name: macos-arm64
             os: macos-15
           - name: windows-x86_64
-            os: windows-2025
+            os: windows-2025-vs2026
 
     steps:
       - name: Checkout
@@ -102,38 +102,126 @@ jobs:
             --target my-lvgl-app \
             -j 4
 
-      - name: Package Linux
+      - name: Install Linux packaging tools
         if: runner.os == 'Linux'
-        shell: bash
         run: |
-          mkdir -p dist
-          cp build/release/my-lvgl-app dist/my-lvgl-app
-          tar -C dist -czf "my-lvgl-app-${GITHUB_REF_NAME}-linux-x86_64.tar.gz" my-lvgl-app
+          sudo apt-get update
+          sudo apt-get install -y fuse3
 
-      - name: Package macOS
+      - name: Install macOS packaging tools
         if: runner.os == 'macOS'
-        shell: bash
         run: |
-          mkdir -p dist
-          cp build/release/my-lvgl-app dist/my-lvgl-app
-          tar -C dist -czf "my-lvgl-app-${GITHUB_REF_NAME}-macos-arm64.tar.gz" my-lvgl-app
+          brew install create-dmg
 
-      - name: Package Windows
+      - name: Install Windows packaging tool
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          choco install innosetup -y
+
+      - name: Package Linux AppImage
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APPDIR="$PWD/AppDir"
+          rm -rf "$APPDIR"
+          mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib"
+          cp build/release/my-lvgl-app "$APPDIR/usr/bin/my-lvgl-app"
+
+          while IFS= read -r lib; do
+            [[ -f "$lib" ]] || continue
+            case "$lib" in
+              */libSDL2*.so*|*/libssl*.so*|*/libcrypto*.so*) cp -L "$lib" "$APPDIR/usr/lib/" ;;
+            esac
+          done < <(ldd "$APPDIR/usr/bin/my-lvgl-app" | awk '{print $3}' | grep '^/' | sort -u)
+
+          cat > "$APPDIR/AppRun" <<'EOF'
+#!/bin/sh
+          HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+          export LD_LIBRARY_PATH="$HERE/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          exec "$HERE/usr/bin/my-lvgl-app" "$@"
+EOF
+          chmod +x "$APPDIR/AppRun"
+
+          cat > "$APPDIR/my-lvgl-app.desktop" <<'EOF'
+[Desktop Entry]
+Type=Application
+Name=my-lvgl-app
+Exec=my-lvgl-app
+Terminal=false
+Categories=Utility;
+EOF
+
+          curl -L --fail -o appimagetool https://github.com/AppImage/appimagetool/releases/latest/download/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          ARCH=x86_64 ./appimagetool "$APPDIR" "my-lvgl-app-${GITHUB_REF_NAME}-linux-x86_64.AppImage"
+
+      - name: Package macOS DMG
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist "my-lvgl-app-${GITHUB_REF_NAME}-macos-arm64.dmg"
+          mkdir -p dist/my-lvgl-app.app/Contents/MacOS
+          cp build/release/my-lvgl-app dist/my-lvgl-app.app/Contents/MacOS/my-lvgl-app
+          chmod +x dist/my-lvgl-app.app/Contents/MacOS/my-lvgl-app
+          cat > dist/my-lvgl-app.app/Contents/Info.plist <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleExecutable</key><string>my-lvgl-app</string>
+<key>CFBundleIdentifier</key><string>com.ojsandev.my-lvgl-app</string>
+<key>CFBundleName</key><string>my-lvgl-app</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleVersion</key><string>${GITHUB_REF_NAME#v}</string>
+<key>CFBundleShortVersionString</key><string>${GITHUB_REF_NAME#v}</string>
+</dict></plist>
+EOF
+          mkdir -p dist/my-lvgl-app.app/Contents/Frameworks
+          for lib in "$(brew --prefix sdl2)/lib/libSDL2-2.0.0.dylib" "$(brew --prefix openssl@3)/lib/libssl.3.dylib" "$(brew --prefix openssl@3)/lib/libcrypto.3.dylib"; do
+            [[ -f "$lib" ]] && cp -L "$lib" dist/my-lvgl-app.app/Contents/Frameworks/
+          done
+          APP="dist/my-lvgl-app.app/Contents/MacOS/my-lvgl-app"
+          for lib in dist/my-lvgl-app.app/Contents/Frameworks/*.dylib; do
+            base="$(basename "$lib")"
+            install_name_tool -change "$(brew --prefix sdl2)/lib/$base" "@loader_path/../Frameworks/$base" "$APP" 2>/dev/null || true
+            install_name_tool -change "$(brew --prefix openssl@3)/lib/$base" "@loader_path/../Frameworks/$base" "$APP" 2>/dev/null || true
+          done
+          mkdir -p dist/dmg-root
+          cp -R dist/my-lvgl-app.app dist/dmg-root/
+          create-dmg --volname "my-lvgl-app" --window-size 600 400 --app-drop-link 450 200 "my-lvgl-app-${GITHUB_REF_NAME}-macos-arm64.dmg" dist/dmg-root/
+
+      - name: Package Windows installer
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          $exe = "build/release/Release/my-lvgl-app.exe"
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item build/release/Release/my-lvgl-app.exe dist/my-lvgl-app.exe
-          Compress-Archive -Path dist/my-lvgl-app.exe -DestinationPath "my-lvgl-app-$env:GITHUB_REF_NAME-windows-x86_64.zip"
-
-      - name: Upload release artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-lvgl-app-${{ matrix.name }}
-          path: |
-            *.tar.gz
-            *.zip
-
+          $iss = @"
+#define MyAppVersion "$version"
+[Setup]
+AppId={{B19E6B4B-91AD-4B0C-9A34-0F55A6E0B5D6}
+AppName=my-lvgl-app
+AppVersion={#MyAppVersion}
+DefaultDirName={autopf}\my-lvgl-app
+DisableProgramGroupPage=yes
+OutputDir=dist
+OutputBaseFilename=my-lvgl-app-$env:GITHUB_REF_NAME-windows-x86_64-installer
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+[Files]
+Source: "$exe"; DestDir: "{app}"; Flags: ignoreversion
+[Icons]
+Name: "{autoprograms}\my-lvgl-app"; Filename: "{app}\my-lvgl-app.exe"
+Name: "{autodesktop}\my-lvgl-app"; Filename: "{app}\my-lvgl-app.exe"
+[Run]
+Filename: "{app}\my-lvgl-app.exe"; Description: "Launch my-lvgl-app"; Flags: nowait postinstall skipifsilent
+"@
+          Set-Content -Path installer.iss -Value $iss -Encoding UTF8
+          & "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe" installer.iss
   release:
     name: Publish GitHub Release
     needs: build
@@ -150,5 +238,6 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            release/**/*.tar.gz
-            release/**/*.zip
+            release/**/*.AppImage
+            release/**/*.dmg
+            release/**/*-installer.exe
