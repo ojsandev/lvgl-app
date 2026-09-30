@@ -1,4 +1,5 @@
 name: Release
+# Native installers: AppImage, DMG and Windows installer.
 
 on:
   push:
