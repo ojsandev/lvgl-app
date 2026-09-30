@@ -10,9 +10,15 @@ project(
 # Language
 # =========================================================
 
-set(CMAKE_CXX_STANDARD 26)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+if (MSVC)
+    # CMake 4.4 does not expose CXX26 for the current MSVC
+    # toolchain yet. MSVC uses /std:c++latest for C++26 mode.
+    add_compile_options(/std:c++latest)
+else()
+    set(CMAKE_CXX_STANDARD 26)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -78,10 +84,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(lv_cpp)
 
 # aptumfr/lv currently changes the global standard to C++20.
-# Restore C++26 for the application project.
-set(CMAKE_CXX_STANDARD 26)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+# Restore C++26 for the application project on non-MSVC compilers.
+if (NOT MSVC)
+    set(CMAKE_CXX_STANDARD 26)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
 
 # =========================================================
 # Project modules
@@ -114,10 +122,6 @@ target_link_libraries(
           lv::lv
           kangaru
 )
-
-set_property(TARGET my-lvgl-app PROPERTY CXX_STANDARD 26)
-set_property(TARGET my-lvgl-app PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET my-lvgl-app PROPERTY CXX_EXTENSIONS OFF)
 
 # =========================================================
 # Warnings
