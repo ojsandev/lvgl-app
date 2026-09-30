@@ -99,6 +99,7 @@ jobs:
             -of=build/debug \
             -s build_type=Debug \
             -c tools.system.package_manager:mode=install \
+            -c tools.system.package_manager:sudo=true \
             --build=missing
 
       - name: Configure CMake
