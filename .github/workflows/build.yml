@@ -90,20 +90,7 @@ jobs:
           conan profile show
           
           echo "=== Conan remotes ==="
-          conan remote list    
-
-      - name: Inspect Conan graph
-        shell: bash
-        run: |
-          conan graph info . \
-            -s build_type=Debug \
-            --format=json > conan-graph.json
-          
-          echo "=== OpenSSL references ==="
-          grep -n -i "openssl" conan-graph.json || true
-          
-          echo "=== Conan graph ==="
-          cat conan-graph.json
+          conan remote list
 
       - name: Install Conan dependencies
         shell: bash
@@ -111,6 +98,7 @@ jobs:
           conan install . \
             -of=build/debug \
             -s build_type=Debug \
+            -c tools.system.package_manager:mode=install \
             --build=missing
 
       - name: Configure CMake
