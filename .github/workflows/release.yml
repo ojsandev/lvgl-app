@@ -88,7 +88,11 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          cmake --preset release
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake --preset release-windows
+          else
+            cmake --preset release
+          fi
 
       - name: Build application
         shell: bash
@@ -119,7 +123,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item build/release/my-lvgl-app.exe dist/my-lvgl-app.exe
+          Copy-Item build/release/Release/my-lvgl-app.exe dist/my-lvgl-app.exe
           Compress-Archive -Path dist/my-lvgl-app.exe -DestinationPath "my-lvgl-app-$env:GITHUB_REF_NAME-windows-x86_64.zip"
 
       - name: Upload release artifact
