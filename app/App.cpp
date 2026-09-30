@@ -12,7 +12,6 @@ App::App(const Config config, app::ui::MainViewModel& viewModel)
     : m_config(config)
     , m_isRunning(false)
     , m_viewModel(viewModel)
-    , m_isWindowClosed()
 {
     m_view = std::make_unique<app::ui::MainView>(m_config.width, m_config.height, m_viewModel);
 
@@ -48,11 +47,6 @@ void App::stop()
     m_isRunning = false;
 
     std::print("App::stop: stopping main loop\n");
-}
-
-bool App::isRunning() const noexcept
-{
-    return m_isRunning;
 }
 
 void App::processEvents()

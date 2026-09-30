@@ -10,8 +10,9 @@ class MyLvlAppConan(ConanFile):
 
     requires = (
         "sdl/2.32.10",
-        "libuuid/1.0.3",
         "kangaru/4.3.2",
+        "boost/1.91.0",
+        "openssl/4.0.2",
     )
 
     def generate(self):
@@ -21,3 +22,9 @@ class MyLvlAppConan(ConanFile):
         toolchain = CMakeToolchain(self)
         toolchain.user_presets_path = False
         toolchain.generate()
+
+    def configure(self):
+        self.options["boost/*"].without_cobalt = True
+
+        if self.settings.os == "Linux":
+            self.options["sdl/*"].pulse = False

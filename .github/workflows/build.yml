@@ -1,0 +1,129 @@
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-15
+          - windows-2025-vs2026
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Conan
+        run: |
+          python -m pip install --upgrade pip
+          pip install conan
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            gcc-14 \
+            g++-14 \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            uuid-dev
+
+      - name: Configure GCC 14
+        if: runner.os == 'Linux'
+        run: |
+          echo "CC=gcc-14" >> "$GITHUB_ENV"
+          echo "CXX=g++-14" >> "$GITHUB_ENV"
+          gcc-14 --version
+          g++-14 --version
+
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake ninja openssl@3 sdl2
+
+      - name: Install Windows dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install ninja cmake -y
+
+      - name: Detect compiler
+        shell: bash
+        run: |
+          cmake --version
+          ninja --version
+          conan --version
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "Running on Windows"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            echo "Running on macOS"
+          else
+            echo "Running on Linux"
+          fi
+
+      - name: Configure Conan
+        shell: bash
+        run: |
+          conan profile detect --force
+
+      - name: Install Conan dependencies
+        shell: bash
+        run: |
+          conan install . \
+            -of=build/debug \
+            -s build_type=Debug \
+            -c tools.system.package_manager:mode=install \
+            -c tools.system.package_manager:sudo=true \
+            --build=missing
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake --preset debug-windows
+          else
+            cmake --preset debug
+          fi
+
+      - name: Build TLS test
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake --build build/debug \
+              --config Debug \
+              --target tls-test \
+              -j 4
+          else
+            cmake --build build/debug \
+              --target tls-test \
+              -j 4
+          fi
+
+      - name: Run TLS test
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ./build/debug/tests/Debug/tls-test.exe
+          else
+            ./build/debug/tests/tls-test
+          fi
