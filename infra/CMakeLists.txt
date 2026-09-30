@@ -16,6 +16,13 @@ if(APPLE)
 endif()
 
 if(WIN32)
+  target_compile_definitions(
+          infra
+          PRIVATE
+          _WIN32_WINNT=0x0A00
+          WINVER=0x0A00
+  )
+
   target_sources(
           infra
           PRIVATE
