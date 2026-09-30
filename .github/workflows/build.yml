@@ -85,6 +85,19 @@ jobs:
             echo "Running on Linux"
           fi
 
+      - name: Detect Visual Studio
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake --version
+          & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
+            -latest `
+            -products * `
+            -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+            -property installationPath
+      
+          cmake --help | Select-String "Visual Studio"
+
       - name: Configure Conan
         shell: bash
         run: |
