@@ -20,7 +20,8 @@ void MainView::init()
 {
     const auto root = lv::vbox(m_screen).fill().center_content();
 
-    m_titleLabel = lv::Label::create(root).on_hover_leave<&MainView::onHoverLabel>(this)
+    m_titleLabel = lv::Label::create(root)
+        .on_hover_leave<&MainView::onHoverLabel>(this)
         .text(m_viewModel.title());
 
     lv::Button::create(root)

@@ -10,27 +10,13 @@
 
 int main()
 {
-    try
-    {
-        infra::http::BoostBeastHttpClient httpClient;
+    kgr::container container;
 
-        const auto response = httpClient.get("https://www.demonslayer-api.com/api/v1/characters");
-        std::print("main: API Response: {}\n", response);
+    auto& mainViewModel = container.service<app::di::MainViewModel>();
 
-        kgr::container container;
+    lv::App app({.width = 700, .height = 400}, mainViewModel);
 
-        auto& mainViewModel = container.service<app::di::MainViewModel>();
+    app.run();
 
-        lv::App app({.width = 700, .height = 400}, mainViewModel);
-
-        app.run();
-
-        return 0;
-    }
-    catch (const std::exception& exception)
-    {
-        std::println("Erro: {}", exception.what());
-
-        return 1;
-    }
+    return 0;
 }

@@ -22,7 +22,7 @@ jobs:
         os:
           - ubuntu-24.04
           - macos-15
-          - windows-2025
+          - windows-2025-vs2026
 
     steps:
       - name: Checkout
@@ -38,7 +38,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install conan
 
-      # Linux
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
@@ -59,17 +58,14 @@ jobs:
         run: |
           echo "CC=gcc-14" >> "$GITHUB_ENV"
           echo "CXX=g++-14" >> "$GITHUB_ENV"
-
           gcc-14 --version
           g++-14 --version
 
-      # macOS
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: |
           brew install cmake ninja openssl@3 sdl2
 
-      # Windows
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
         shell: pwsh
@@ -96,31 +92,6 @@ jobs:
         run: |
           conan profile detect --force
 
-      - name: Conan environment
-        shell: bash
-        run: |
-          echo "=== Conan ==="
-          conan --version
-
-          echo "=== Conan profile ==="
-          conan profile show
-
-          echo "=== Conan remotes ==="
-          conan remote list
-
-      - name: Inspect Conan graph
-        shell: bash
-        run: |
-          conan graph info . \
-            -s build_type=Debug \
-            --format=json > conan-graph.json
-
-          echo "=== OpenSSL references ==="
-          grep -n -i "openssl" conan-graph.json || true
-
-          echo "=== Conan graph ==="
-          cat conan-graph.json
-
       - name: Install Conan dependencies
         shell: bash
         run: |
@@ -134,20 +105,31 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          cmake --preset debug
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake --preset debug-windows
+          else
+            cmake --preset debug
+          fi
 
       - name: Build TLS test
         shell: bash
         run: |
-          cmake --build build/debug \
-            --target tls-test \
-            -j 4
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake --build build/debug \
+              --config Debug \
+              --target tls-test \
+              -j 4
+          else
+            cmake --build build/debug \
+              --target tls-test \
+              -j 4
+          fi
 
       - name: Run TLS test
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            ./build/debug/tests/tls-test.exe
+            ./build/debug/tests/Debug/tls-test.exe
           else
             ./build/debug/tests/tls-test
           fi

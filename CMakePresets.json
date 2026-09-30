@@ -11,7 +11,6 @@
       "displayName": "Debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/debug",
-
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/debug/conan_toolchain.cmake"
@@ -22,9 +21,26 @@
       "displayName": "Release",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/release",
-
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/release/conan_toolchain.cmake"
+      }
+    },
+    {
+      "name": "debug-windows",
+      "displayName": "Debug Windows",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/debug/conan_toolchain.cmake"
+      }
+    },
+    {
+      "name": "release-windows",
+      "displayName": "Release Windows",
+      "generator": "Visual Studio 18 2026",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/release/conan_toolchain.cmake"
       }
     }
@@ -37,6 +53,16 @@
     {
       "name": "release",
       "configurePreset": "release"
+    },
+    {
+      "name": "debug-windows",
+      "configurePreset": "debug-windows",
+      "configuration": "Debug"
+    },
+    {
+      "name": "release-windows",
+      "configurePreset": "release-windows",
+      "configuration": "Release"
     }
   ]
 }

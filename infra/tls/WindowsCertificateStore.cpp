@@ -30,7 +30,7 @@ void WindowsCertificateStore::configure(boost::asio::ssl::context& context)
             );
     }
 
-    HCERTSTORE certificateStore = CertOpenSystemStoreW(nullptr, L"ROOT");
+    HCERTSTORE certificateStore = CertOpenSystemStoreW(0, L"ROOT");
 
     if (certificateStore == nullptr)
     {
