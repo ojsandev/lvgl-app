@@ -80,6 +80,31 @@ jobs:
         run: |
           conan profile detect --force
 
+      - name: Conan environment
+        shell: bash
+        run: |
+          echo "=== Conan ==="
+          conan --version
+          
+          echo "=== Conan profile ==="
+          conan profile show
+          
+          echo "=== Conan remotes ==="
+          conan remote list    
+
+      - name: Inspect Conan graph
+        shell: bash
+        run: |
+          conan graph info . \
+            -s build_type=Debug \
+            --format=json > conan-graph.json
+          
+          echo "=== OpenSSL references ==="
+          grep -n -i "openssl" conan-graph.json || true
+          
+          echo "=== Conan graph ==="
+          cat conan-graph.json
+
       - name: Install Conan dependencies
         shell: bash
         run: |
