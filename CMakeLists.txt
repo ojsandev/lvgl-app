@@ -61,6 +61,18 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(lvgl)
 
+if (MSVC)
+    # LVGL 9.5 can inherit C++26 from the parent project. CMake 4.4
+    # does not recognize CXX26 for MSVC 19.51, so use C++20 as the
+    # CMake dialect while /std:c++latest enables the latest MSVC mode.
+    if (TARGET lvgl)
+        set_property(TARGET lvgl PROPERTY CXX_STANDARD 20)
+    endif()
+    if (TARGET lvgl_thorvg)
+        set_property(TARGET lvgl_thorvg PROPERTY CXX_STANDARD 20)
+    endif()
+endif()
+
 target_link_libraries(
         lvgl
         PUBLIC
@@ -85,7 +97,11 @@ FetchContent_MakeAvailable(lv_cpp)
 
 # aptumfr/lv currently changes the global standard to C++20.
 # Restore C++26 for the application project on non-MSVC compilers.
-if (NOT MSVC)
+if (MSVC)
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+else()
     set(CMAKE_CXX_STANDARD 26)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
     set(CMAKE_CXX_EXTENSIONS OFF)
