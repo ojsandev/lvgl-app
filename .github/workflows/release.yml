@@ -1,0 +1,150 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            os: ubuntu-24.04
+          - name: macos-arm64
+            os: macos-15
+          - name: windows-x86_64
+            os: windows-2025
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Conan
+        run: |
+          python -m pip install --upgrade pip
+          pip install conan
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            gcc-14 \
+            g++-14 \
+            cmake \
+            ninja-build \
+            pkg-config \
+            libssl-dev \
+            libsdl2-dev \
+            uuid-dev
+
+      - name: Configure GCC 14
+        if: runner.os == 'Linux'
+        run: |
+          echo "CC=gcc-14" >> "$GITHUB_ENV"
+          echo "CXX=g++-14" >> "$GITHUB_ENV"
+
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake ninja openssl@3 sdl2
+
+      - name: Install Windows dependencies
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install ninja cmake -y
+
+      - name: Configure Conan
+        shell: bash
+        run: |
+          conan profile detect --force
+
+      - name: Install Conan dependencies
+        shell: bash
+        run: |
+          conan install . \
+            -of=build/release \
+            -s build_type=Release \
+            -c tools.system.package_manager:mode=install \
+            -c tools.system.package_manager:sudo=true \
+            --build=missing
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake --preset release
+
+      - name: Build application
+        shell: bash
+        run: |
+          cmake --build build/release \
+            --config Release \
+            --target my-lvgl-app \
+            -j 4
+
+      - name: Package Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp build/release/my-lvgl-app dist/my-lvgl-app
+          tar -C dist -czf "my-lvgl-app-${GITHUB_REF_NAME}-linux-x86_64.tar.gz" my-lvgl-app
+
+      - name: Package macOS
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp build/release/my-lvgl-app dist/my-lvgl-app
+          tar -C dist -czf "my-lvgl-app-${GITHUB_REF_NAME}-macos-arm64.tar.gz" my-lvgl-app
+
+      - name: Package Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item build/release/my-lvgl-app.exe dist/my-lvgl-app.exe
+          Compress-Archive -Path dist/my-lvgl-app.exe -DestinationPath "my-lvgl-app-$env:GITHUB_REF_NAME-windows-x86_64.zip"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-lvgl-app-${{ matrix.name }}
+          path: |
+            *.tar.gz
+            *.zip
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release/**/*.tar.gz
+            release/**/*.zip
