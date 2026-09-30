@@ -5,6 +5,12 @@ on:
     branches:
       - master
 
+  merge_group:
+    types:
+      - checks_requested
+    branches:
+      - master
+
 jobs:
   build:
     name: Build (${{ matrix.os }})
