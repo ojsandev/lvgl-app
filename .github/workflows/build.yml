@@ -128,20 +128,22 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          cmake --preset debug
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake --preset debug-windows
+          else
+           cmake --preset debug
+          fi
 
       - name: Build TLS test
         shell: bash
         run: |
-          cmake --build build/debug \
-            --target tls-test \
-            -j 4
-
-      - name: Run TLS test
-        shell: bash
-        run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            ./build/debug/tests/tls-test.exe
+            cmake --build build/debug \
+              --config Debug \
+              --target tls-test \
+              -j 4
           else
-            ./build/debug/tests/tls-test
+            cmake --build build/debug \
+              --target tls-test \
+              -j 4
           fi
