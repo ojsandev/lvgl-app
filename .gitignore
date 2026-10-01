@@ -1,4 +1,5 @@
 /build/
+dist/
 /.idea/
 /.vscode/
 .DS_Store
@@ -7,3 +8,12 @@
 /conan.lock
 .cache/
 .zed/
+
+# Packaging generated files
+/AppDir/
+/appimagetool
+/installer.iss
+
+*.dmg
+*.AppImage
+*.exe

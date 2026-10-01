@@ -4,6 +4,23 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - '**/*.c'
+      - '**/*.h'
+      - '**/*.cpp'
+      - '**/*.hpp'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'cmake/**'
+      - 'conanfile.*'
+      - 'lv_conf.h'
+      - 'src/**'
+      - 'tests/**'
+      - 'third_party/**'
+
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -16,7 +33,7 @@ jobs:
         os:
           - ubuntu-24.04
           - macos-15
-          - windows-2025-vs2026
+          - windows-2025
 
     steps:
       - name: Checkout

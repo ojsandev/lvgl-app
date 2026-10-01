@@ -1,0 +1,24 @@
+name: Validate CI
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/**'
+
+concurrency:
+  group: validate-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate workflows
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate workflows
+        uses: rhysd/actionlint@v1.7.7
