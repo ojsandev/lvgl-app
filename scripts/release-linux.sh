@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-PROJECT_ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 APPDIR="$PROJECT_ROOT/AppDir"
-OUTPUT="my-lvgl-app-\${GITHUB_REF_NAME}-linux-x86_64.AppImage"
+OUTPUT="my-lvgl-app-${GITHUB_REF_NAME}-linux-x86_64.AppImage"
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib"
 cp build/release/my-lvgl-app "$APPDIR/usr/bin/my-lvgl-app"
@@ -14,7 +14,7 @@ done < <(ldd "$APPDIR/usr/bin/my-lvgl-app" | awk '{print $3}' | grep '^/' | sort
 cat > "$APPDIR/AppRun" <<'EOF'
 #!/bin/sh
 HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-export LD_LIBRARY_PATH="$HERE/usr/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="$HERE/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 exec "$HERE/usr/bin/my-lvgl-app" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
