@@ -125,6 +125,13 @@ jobs:
         shell: bash
         run: bash scripts/release-linux.sh
 
+      - name: Verify Linux artifact
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          test -s my-lvgl-app-*-linux-x86_64.AppImage
+          file my-lvgl-app-*-linux-x86_64.AppImage
+
       - name: Upload Linux artifact
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
@@ -137,6 +144,13 @@ jobs:
         shell: bash
         run: bash scripts/release-macos.sh
 
+      - name: Verify macOS artifact
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          test -s my-lvgl-app-*-macos-arm64.dmg
+          hdiutil verify my-lvgl-app-*-macos-arm64.dmg
+
       - name: Upload macOS artifact
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v4
@@ -148,6 +162,15 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: ./scripts/release-windows.ps1
+
+      - name: Verify Windows artifact
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem -Path dist -Filter "*-installer.exe" -File
+          if ($installer.Count -ne 1 -or $installer[0].Length -eq 0) {
+            throw "Expected exactly one non-empty Windows installer in dist/"
+          }
 
       - name: Upload Windows artifact
         if: runner.os == 'Windows'
