@@ -21,7 +21,7 @@ The setup script verifies that all required tools are available before configuri
 You can check your environment with:
 
 ```bash
-./build.sh doctor
+bash scripts/dev.sh doctor
 ```
 
 Example:
@@ -100,7 +100,7 @@ chmod +x dev.sh
 To install dependencies, configure CMake and compile the Debug version:
 
 ```bash
-./dev.sh setup
+bash scripts/dev.sh setup
 ```
 
 This performs:
@@ -120,7 +120,7 @@ Build application
 The resulting executable is:
 
 ```text
-dev/debug/my-lvl-app
+build/debug/my-lvgl-app
 ```
 
 ---
@@ -130,7 +130,7 @@ dev/debug/my-lvl-app
 If the Debug environment has already been configured:
 
 ```bash
-./dev.sh build
+bash scripts/dev.sh build
 ```
 
 This executes the Debug CMake preset:
@@ -146,7 +146,7 @@ cmake --build --preset debug
 To compile the application if necessary and execute it:
 
 ```bash
-./dev.sh run
+bash scripts/dev.sh run
 ```
 
 The script expects the executable at:
@@ -164,13 +164,13 @@ If the executable does not exist, it automatically builds the Debug configuratio
 To install Release dependencies, configure CMake and compile the Release version:
 
 ```bash
-./dev.sh release
+bash scripts/dev.sh release
 ```
 
 The resulting executable is:
 
 ```text
-build/release/my-lvl-app
+build/release/my-lvgl-app
 ```
 
 ---
@@ -180,7 +180,7 @@ build/release/my-lvl-app
 To run the Release version:
 
 ```bash
-./dev.sh run-release
+bash scripts/dev.sh run-release
 ```
 
 If the executable does not exist, the script automatically builds it first.
@@ -192,7 +192,7 @@ If the executable does not exist, the script automatically builds it first.
 To completely rebuild the Debug configuration:
 
 ```bash
-./dev.sh rebuild
+bash scripts/dev.sh rebuild
 ```
 
 This removes:
@@ -206,7 +206,7 @@ and runs the complete Debug setup again.
 For Release:
 
 ```bash
-./dev.sh rebuild-release
+bash scripts/dev.sh rebuild-release
 ```
 
 ---
@@ -216,7 +216,7 @@ For Release:
 To remove all generated build artifacts:
 
 ```bash
-./dev.sh clean
+bash scripts/dev.sh clean
 ```
 
 This removes the entire:
@@ -236,7 +236,7 @@ After cleaning, the next setup will reinstall/configure the required build artif
 If something is not working, start with:
 
 ```bash
-./build.sh doctor
+bash scripts/dev.sh doctor
 ```
 
 The command checks:
@@ -345,25 +345,23 @@ For a fresh checkout:
 git clone <repository>
 cd my-lvl-app
 
-chmod +x dev.sh
-
-./dev.sh doctor
-./dev.sh setup
-./dev.sh run
+bash scripts/dev.sh doctor
+bash scripts/dev.sh setup
+bash scripts/dev.sh run
 ```
 
 After making changes:
 
 ```bash
-./dev.sh build
-./dev.sh run
+bash scripts/dev.sh build
+bash scripts/dev.sh run
 ```
 
 For a clean rebuild:
 
 ```bash
-./dev.sh rebuild
-./dev.sh run
+bash scripts/dev.sh rebuild
+bash scripts/dev.sh run
 ```
 
 ---
@@ -372,15 +370,15 @@ For a clean rebuild:
 
 | Command                      | Description                          |
 | ---------------------------- | ------------------------------------ |
-| `./dev.sh setup`           | Configure and build Debug            |
-| `./dev.sh build`           | Build Debug                          |
-| `./dev.sh run`             | Build if necessary and run Debug     |
-| `./dev.sh release`         | Configure and build Release          |
-| `./dev.sh run-release`     | Build if necessary and run Release   |
-| `./dev.sh rebuild`         | Clean and rebuild Debug              |
-| `./dev.sh rebuild-release` | Clean and rebuild Release            |
-| `./dev.sh clean`           | Remove all build artifacts           |
-| `./dev.sh doctor`          | Diagnose the development environment |
+| `bash scripts/dev.sh setup`           | Configure and build Debug            |
+| `bash scripts/dev.sh build`           | Build Debug                          |
+| `bash scripts/dev.sh run`             | Build if necessary and run Debug     |
+| `bash scripts/dev.sh release`         | Configure and build Release          |
+| `bash scripts/dev.sh run-release`     | Build if necessary and run Release   |
+| `bash scripts/dev.sh rebuild`         | Clean and rebuild Debug              |
+| `bash scripts/dev.sh rebuild-release` | Clean and rebuild Release            |
+| `bash scripts/dev.sh clean`           | Remove all build artifacts           |
+| `bash scripts/dev.sh doctor`          | Diagnose the development environment |
 
 ---
 
@@ -456,8 +454,8 @@ clang++
 Remove the build artifacts and recreate the configuration:
 
 ```bash
-./build.sh clean
-./build.sh setup
+bash scripts/dev.sh clean
+bash scripts/dev.sh setup
 ```
 
 For Debug only:
