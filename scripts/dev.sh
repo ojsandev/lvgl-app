@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-PROJECT_ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 APP_NAME="my-lvgl-app"
 CONAN_PROFILE=".conan/profiles/macos-clang26"
@@ -33,5 +33,5 @@ Usage:
   $0 doctor
 EOF
 }
-main(){ case "\${1:-}" in setup) setup_debug;; build) build "debug";; run) run_app "debug";; release) setup_release;; run-release) run_app "release";; rebuild) rebuild_debug;; rebuild-release) rebuild_release;; clean) clean;; doctor) doctor;; *) usage; exit 1;; esac; }
+main(){ case "${1:-}" in setup) setup_debug;; build) build "debug";; run) run_app "debug";; release) setup_release;; run-release) run_app "release";; rebuild) rebuild_debug;; rebuild-release) rebuild_release;; clean) clean;; doctor) doctor;; *) usage; exit 1;; esac; }
 main "$@"
