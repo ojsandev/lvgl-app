@@ -89,6 +89,20 @@ build_appimage() {
         "$OUTPUT"
 }
 
+verify_appimage() {
+    log "Verifying AppImage"
+
+    [[ -s "$OUTPUT" ]] || {
+        echo "AppImage was not created: $OUTPUT" >&2
+        return 1
+    }
+
+    file "$OUTPUT" | grep -q "ELF" || {
+        echo "Generated file is not a valid AppImage ELF executable: $OUTPUT" >&2
+        return 1
+    }
+}
+
 cleanup() {
     log "Cleaning temporary packaging files"
     rm -rf "$APPDIR" "$PROJECT_ROOT/appimagetool"
@@ -102,6 +116,7 @@ main() {
     create_desktop_entry
     download_appimagetool
     build_appimage
+    verify_appimage
     cleanup
 
     log "Created: $OUTPUT"
