@@ -57,10 +57,24 @@ function Invoke-InnoSetup {
     & $compiler $InstallerScript
 }
 
+function Test-Installer {
+    Write-Step "Verifying Windows installer"
+
+    $installer = Get-ChildItem -Path $DistDirectory -Filter "*-installer.exe" -File |
+        Select-Object -First 1
+
+    if ($null -eq $installer -or $installer.Length -eq 0) {
+        throw "Windows installer was not created in $DistDirectory"
+    }
+
+    Write-Host "Installer: $($installer.FullName)"
+}
+
 function Main {
     Initialize-DistDirectory
     New-InnoSetupScript
     Invoke-InnoSetup
+    Test-Installer
     Write-Step "Created Windows installer in $DistDirectory"
 }
 
