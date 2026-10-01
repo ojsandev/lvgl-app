@@ -49,22 +49,35 @@ create_apprun() {
     cat > "$APPDIR/AppRun" <<'EOF'
 #!/bin/sh
 
-    HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-    export LD_LIBRARY_PATH="$HERE/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-    exec "$HERE/usr/bin/my-lvgl-app" "$@"
+HERE="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+export LD_LIBRARY_PATH="$HERE/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$HERE/usr/bin/my-lvgl-app" "$@"
 EOF
 
     chmod +x "$APPDIR/AppRun"
 }
 
+create_icon() {
+    log "Creating application icon"
+
+    cat > "$APPDIR/$APP_NAME.svg" <<'EOF'
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" rx="48" fill="#222"/>
+  <rect x="48" y="48" width="160" height="160" rx="24" fill="#7C3AED"/>
+  <path d="M80 88h96v24h-36v56h-24v-56H80z" fill="#fff"/>
+</svg>
+EOF
+}
+
 create_desktop_entry() {
     log "Creating desktop entry"
 
-    cat > "$APPDIR/$APP_NAME.desktop" <<'EOF'
+    cat > "$APPDIR/$APP_NAME.desktop" <<EOF
 [Desktop Entry]
 Type=Application
-Name=my-lvgl-app
-Exec=my-lvgl-app
+Name=$APP_NAME
+Exec=$APP_NAME
+Icon=$APP_NAME
 Terminal=false
 Categories=Utility;
 EOF
@@ -113,6 +126,7 @@ main() {
     create_appdir
     copy_runtime_dependencies
     create_apprun
+    create_icon
     create_desktop_entry
     download_appimagetool
     build_appimage
