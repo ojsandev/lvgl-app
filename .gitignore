@@ -1,4 +1,5 @@
 /build/
+dist/
 /.idea/
 /.vscode/
 .DS_Store
@@ -7,3 +8,6 @@
 /conan.lock
 .cache/
 .zed/
+*.dmg
+*.AppImage
+*.exe
