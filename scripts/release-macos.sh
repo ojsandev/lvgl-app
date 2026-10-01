@@ -72,7 +72,24 @@ create_dmg_root() {
 
 create_dmg() {
     log "Creating DMG"
-    create-dmg --volname "$APP_NAME" --window-size 600 400 --app-drop-link 450 200 "$OUTPUT" "$PROJECT_ROOT/dist/dmg-root/"
+    create-dmg \
+        --volname "$APP_NAME" \
+        --window-size 600 400 \
+        --app-drop-link 450 200 \
+        "$OUTPUT" \
+        "$PROJECT_ROOT/dist/dmg-root/"
+}
+
+verify_dmg() {
+    log "Verifying DMG"
+
+    [[ -s "$OUTPUT" ]] || {
+        echo "DMG was not created: $OUTPUT" >&2
+        return 1
+    }
+
+    hdiutil verify "$OUTPUT"
+    test -x "$APP/Contents/MacOS/$APP_NAME"
 }
 
 main() {
@@ -82,6 +99,7 @@ main() {
     bundle_runtime_dependencies
     create_dmg_root
     create_dmg
+    verify_dmg
     log "Created: $OUTPUT"
 }
 
