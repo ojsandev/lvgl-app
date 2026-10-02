@@ -4,8 +4,10 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_NAME="my-lvgl-app"
+VERSION="${VERSION:-${GITHUB_REF_NAME:-dev}}"
 APPDIR="$PROJECT_ROOT/AppDir"
-OUTPUT="$PROJECT_ROOT/${APP_NAME}-${GITHUB_REF_NAME}-linux-x86_64.AppImage"
+APPIMAGETOOL="$PROJECT_ROOT/appimagetool"
+OUTPUT="$PROJECT_ROOT/${APP_NAME}-${VERSION}-linux-x86_64.AppImage"
 
 cd "$PROJECT_ROOT"
 
@@ -15,13 +17,29 @@ log() {
 
 clean_previous_artifacts() {
     log "Cleaning previous Linux packaging artifacts"
-    rm -rf "$APPDIR" "$PROJECT_ROOT/appimagetool" "$OUTPUT"
+    rm -rf "$APPDIR" "$APPIMAGETOOL" "$OUTPUT"
+}
+
+require_command() {
+    command -v "$1" >/dev/null 2>&1 || {
+        echo "Required command not found: $1" >&2
+        return 1
+    }
+}
+
+check_tools() {
+    log "Checking Linux packaging tools"
+
+    require_command curl
+    require_command file
+    require_command ldd
 }
 
 create_appdir() {
     log "Creating AppImage directory"
     mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib"
     cp "build/release/$APP_NAME" "$APPDIR/usr/bin/$APP_NAME"
+    chmod +x "$APPDIR/usr/bin/$APP_NAME"
 }
 
 copy_runtime_dependencies() {
@@ -87,17 +105,17 @@ download_appimagetool() {
     log "Downloading appimagetool"
 
     curl -L --fail \
-        -o "$PROJECT_ROOT/appimagetool" \
+        -o "$APPIMAGETOOL" \
         https://github.com/AppImage/appimagetool/releases/latest/download/appimagetool-x86_64.AppImage
 
-    chmod +x "$PROJECT_ROOT/appimagetool"
+    chmod +x "$APPIMAGETOOL"
 }
 
 build_appimage() {
     log "Building AppImage"
 
     ARCH=x86_64 \
-        "$PROJECT_ROOT/appimagetool" \
+        "$APPIMAGETOOL" \
         "$APPDIR" \
         "$OUTPUT"
 }
@@ -114,14 +132,17 @@ verify_appimage() {
         echo "Generated file is not a valid AppImage ELF executable: $OUTPUT" >&2
         return 1
     }
+
+    "$OUTPUT" --appimage-version >/dev/null
 }
 
 cleanup() {
     log "Cleaning temporary packaging files"
-    rm -rf "$APPDIR" "$PROJECT_ROOT/appimagetool"
+    rm -rf "$APPDIR" "$APPIMAGETOOL"
 }
 
 main() {
+    check_tools
     clean_previous_artifacts
     create_appdir
     copy_runtime_dependencies

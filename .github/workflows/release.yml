@@ -63,7 +63,7 @@ jobs:
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: |
-          brew install cmake ninja openssl@3 sdl2
+          brew install cmake ninja
 
       - name: Install Windows dependencies
         if: runner.os == 'Windows'
@@ -151,6 +151,11 @@ jobs:
         run: |
           test -s my-lvgl-app-*-macos-arm64.dmg
           hdiutil verify my-lvgl-app-*-macos-arm64.dmg
+          mkdir verify-macos
+          hdiutil attach my-lvgl-app-*-macos-arm64.dmg -nobrowse -mountpoint verify-macos
+          codesign --verify --deep --strict --verbose=2 verify-macos/my-lvgl-app.app
+          codesign -dvvv verify-macos/my-lvgl-app.app 2>&1 | grep -q 'Signature=adhoc'
+          hdiutil detach verify-macos
 
       - name: Upload macOS artifact
         if: runner.os == 'macOS'

@@ -2,10 +2,13 @@ $ErrorActionPreference = "Stop"
 
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $AppName = "my-lvgl-app"
-$Version = $env:GITHUB_REF_NAME.TrimStart('v')
+$ReleaseName = if ($env:VERSION) { $env:VERSION } elseif ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "dev" }
+$Version = $ReleaseName.TrimStart('v')
 $Executable = Join-Path $ProjectRoot "build/release/Release/$AppName.exe"
 $DistDirectory = Join-Path $ProjectRoot "dist"
 $InstallerScript = Join-Path $ProjectRoot "installer.iss"
+$InstallerName = "$AppName-$ReleaseName-windows-x86_64-installer.exe"
+$Installer = Join-Path $DistDirectory $InstallerName
 
 Set-Location $ProjectRoot
 
@@ -17,6 +20,15 @@ function Write-Step {
 function Initialize-DistDirectory {
     Write-Step "Preparing Windows packaging directory"
     New-Item -ItemType Directory -Force -Path $DistDirectory | Out-Null
+    Remove-Item -Force -ErrorAction SilentlyContinue $Installer
+}
+
+function Test-Prerequisites {
+    Write-Step "Checking Windows packaging prerequisites"
+
+    if (-not (Test-Path -Path $Executable -PathType Leaf)) {
+        throw "Release executable not found: $Executable"
+    }
 }
 
 function New-InnoSetupScript {
@@ -31,7 +43,7 @@ AppVersion={#MyAppVersion}
 DefaultDirName={autopf}\my-lvgl-app
 DisableProgramGroupPage=yes
 OutputDir=dist
-OutputBaseFilename=my-lvgl-app-$env:GITHUB_REF_NAME-windows-x86_64-installer
+OutputBaseFilename=$([System.IO.Path]::GetFileNameWithoutExtension($InstallerName))
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 [Files]
@@ -80,18 +92,16 @@ function Invoke-InnoSetup {
 function Test-Installer {
     Write-Step "Verifying Windows installer"
 
-    $installer = Get-ChildItem -Path $DistDirectory -Filter "*-installer.exe" -File |
-        Select-Object -First 1
-
-    if ($null -eq $installer -or $installer.Length -eq 0) {
-        throw "Windows installer was not created in $DistDirectory"
+    if (-not (Test-Path -Path $Installer -PathType Leaf) -or (Get-Item $Installer).Length -eq 0) {
+        throw "Windows installer was not created: $Installer"
     }
 
-    Write-Host "Installer: $($installer.FullName)"
+    Write-Host "Installer: $Installer"
 }
 
 function Main {
     Initialize-DistDirectory
+    Test-Prerequisites
     New-InnoSetupScript
     Invoke-InnoSetup
     Test-Installer
