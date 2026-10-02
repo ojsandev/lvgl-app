@@ -28,7 +28,7 @@ function New-InnoSetupScript {
 AppId={{B19E6B4B-91AD-4B0C-9A34-0F55A6E0B5D6}
 AppName=$AppName
 AppVersion={#MyAppVersion}
-DefaultDirName={autopf}my-lvgl-app
+DefaultDirName={autopf}\my-lvgl-app
 DisableProgramGroupPage=yes
 OutputDir=dist
 OutputBaseFilename=my-lvgl-app-$env:GITHUB_REF_NAME-windows-x86_64-installer
@@ -37,10 +37,10 @@ ArchitecturesInstallIn64BitMode=x64compatible
 [Files]
 Source: "$Executable"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
-Name: "{autoprograms}my-lvgl-app"; Filename: "{app}my-lvgl-app.exe"
-Name: "{autodesktop}my-lvgl-app"; Filename: "{app}my-lvgl-app.exe"
+Name: "{autoprograms}\my-lvgl-app"; Filename: "{app}\my-lvgl-app.exe"
+Name: "{autodesktop}\my-lvgl-app"; Filename: "{app}\my-lvgl-app.exe"
 [Run]
-Filename: "{app}my-lvgl-app.exe"; Description: "Launch my-lvgl-app"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\my-lvgl-app.exe"; Description: "Launch my-lvgl-app"; Flags: nowait postinstall skipifsilent
 "@
 
     Set-Content -Path $InstallerScript -Value $iss -Encoding UTF8
@@ -58,7 +58,7 @@ function Invoke-InnoSetup {
 
     if ($null -eq $compiler) {
         $programFilesX86 = ${env:ProgramFiles(x86)}
-        $defaultCompiler = Join-Path $programFilesX86 "Inno Setup 6ISCC.exe"
+        $defaultCompiler = Join-Path $programFilesX86 "Inno Setup 6\ISCC.exe"
 
         if (Test-Path $defaultCompiler) {
             $compiler = $defaultCompiler
@@ -66,7 +66,7 @@ function Invoke-InnoSetup {
     }
 
     if ($null -eq $compiler) {
-        throw "Inno Setup compiler not found. Expected ISCC.exe on PATH or at '${env:ProgramFiles(x86)}Inno Setup 6ISCC.exe'"
+        throw "Inno Setup compiler not found. Expected ISCC.exe on PATH or at '${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe'"
     }
 
     Write-Host "Using Inno Setup compiler: $compiler"
