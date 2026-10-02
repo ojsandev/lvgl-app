@@ -108,7 +108,7 @@ if (MSVC)
         LV_CPP_OBJECTREF_CONTENT
         "${LV_CPP_OBJECTREF_CONTENT}"
     )
-    file(WRITE "\${LV_CPP_OBJECTREF_HEADER}" "\${LV_CPP_OBJECTREF_CONTENT}")
+    file(WRITE "${LV_CPP_OBJECTREF_HEADER}" "${LV_CPP_OBJECTREF_CONTENT}")
 endif()
 
 # aptumfr/lv currently changes the global standard to C++20.
