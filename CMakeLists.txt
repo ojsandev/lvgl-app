@@ -95,6 +95,22 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(lv_cpp)
 
+if (MSVC)
+    # MSVC does not apply empty-base optimization to multiple empty bases by
+    # default. lv::ObjectRef relies on that layout and validates it with a
+    # pointer-size static_assert. Apply MSVC's empty_bases attribute to the
+    # external type without modifying the dependency itself.
+    set(LV_CPP_OBJECTREF_HEADER "\${lv_cpp_SOURCE_DIR}/include/lv/core/objectref.hpp")
+    file(READ "\${LV_CPP_OBJECTREF_HEADER}" LV_CPP_OBJECTREF_CONTENT)
+    string(REPLACE
+        "class ObjectRef : public ObjectView,"
+        "class __declspec(empty_bases) ObjectRef : public ObjectView,"
+        LV_CPP_OBJECTREF_CONTENT
+        "\${LV_CPP_OBJECTREF_CONTENT}"
+    )
+    file(WRITE "\${LV_CPP_OBJECTREF_HEADER}" "\${LV_CPP_OBJECTREF_CONTENT}")
+endif()
+
 # aptumfr/lv currently changes the global standard to C++20.
 # Restore C++26 for the application project on non-MSVC compilers.
 if (MSVC)
