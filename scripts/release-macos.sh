@@ -25,6 +25,16 @@ create_app_bundle() {
     chmod +x "$APP/Contents/MacOS/$APP_NAME"
 }
 
+remove_adhoc_signature() {
+    log "Removing ad-hoc code signatures"
+
+    # macOS/ld may produce an ad-hoc signature for the executable. An
+    # unsigned GitHub release is preferable to shipping a malformed
+    # signature that Gatekeeper reports as a damaged application.
+    codesign --remove-signature "$APP/Contents/MacOS/$APP_NAME" 2>/dev/null || true
+    codesign --remove-signature "$APP" 2>/dev/null || true
+}
+
 create_info_plist() {
     log "Creating Info.plist"
     local version="${GITHUB_REF_NAME#v}"
@@ -90,11 +100,17 @@ verify_dmg() {
 
     hdiutil verify "$OUTPUT"
     test -x "$APP/Contents/MacOS/$APP_NAME"
+
+    if codesign --verify --deep --strict "$APP" 2>/dev/null; then
+        echo "Unexpected valid code signature found on unsigned release"
+        return 1
+    fi
 }
 
 main() {
     clean_previous_artifacts
     create_app_bundle
+    remove_adhoc_signature
     create_info_plist
     bundle_runtime_dependencies
     create_dmg_root
