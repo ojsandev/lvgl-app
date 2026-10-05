@@ -11,14 +11,14 @@ project(
 # =========================================================
 
 if (MSVC)
-    # CMake 4.4 does not expose CXX26 for the current MSVC
-    # toolchain yet. MSVC uses /std:c++latest for C++26 mode.
-    add_compile_options(/std:c++latest)
-else()
-    set(CMAKE_CXX_STANDARD 26)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
+  # CMake 4.4 does not expose CXX26 for the current MSVC
+  # toolchain yet. MSVC uses /std:c++latest for C++26 mode.
+  add_compile_options(/std:c++latest)
+else ()
+  set(CMAKE_CXX_STANDARD 26)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -44,7 +44,7 @@ set(CONFIG_LV_USE_THORVG_INTERNAL ON CACHE BOOL "" FORCE)
 
 set(LIBS SDL2 kangaru Boost OpenSSL)
 foreach (lib ${LIBS})
-    find_package(${lib} CONFIG REQUIRED)
+  find_package(${lib} CONFIG REQUIRED)
 endforeach ()
 
 include(FetchContent)
@@ -62,16 +62,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(lvgl)
 
 if (MSVC)
-    # LVGL 9.5 can inherit C++26 from the parent project. CMake 4.4
-    # does not recognize CXX26 for MSVC 19.51, so use C++20 as the
-    # CMake dialect while /std:c++latest enables the latest MSVC mode.
-    if (TARGET lvgl)
-        set_property(TARGET lvgl PROPERTY CXX_STANDARD 20)
-    endif()
-    if (TARGET lvgl_thorvg)
-        set_property(TARGET lvgl_thorvg PROPERTY CXX_STANDARD 20)
-    endif()
-endif()
+  # LVGL 9.5 can inherit C++26 from the parent project. CMake 4.4
+  # does not recognize CXX26 for MSVC 19.51, so use C++20 as the
+  # CMake dialect while /std:c++latest enables the latest MSVC mode.
+  if (TARGET lvgl)
+    set_property(TARGET lvgl PROPERTY CXX_STANDARD 20)
+  endif ()
+  if (TARGET lvgl_thorvg)
+    set_property(TARGET lvgl_thorvg PROPERTY CXX_STANDARD 20)
+  endif ()
+endif ()
 
 target_link_libraries(
         lvgl
@@ -96,37 +96,38 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(lv_cpp)
 
 if (MSVC)
-    # MSVC does not apply empty-base optimization to multiple empty bases by
-    # default. lv::ObjectRef relies on that layout and validates it with a
-    # pointer-size static_assert. Apply MSVC's empty_bases attribute to the
-    # external type without modifying the dependency itself.
-    set(LV_CPP_OBJECTREF_HEADER "${lv_cpp_SOURCE_DIR}/include/lv/core/objectref.hpp")
-    file(READ "${LV_CPP_OBJECTREF_HEADER}" LV_CPP_OBJECTREF_CONTENT)
-    string(REPLACE
-        "class ObjectRef : public ObjectView,"
-        "class __declspec(empty_bases) ObjectRef : public ObjectView,"
-        LV_CPP_OBJECTREF_CONTENT
-        "${LV_CPP_OBJECTREF_CONTENT}"
-    )
-    file(WRITE "${LV_CPP_OBJECTREF_HEADER}" "${LV_CPP_OBJECTREF_CONTENT}")
-endif()
+  # MSVC does not apply empty-base optimization to multiple empty bases by
+  # default. lv::ObjectRef relies on that layout and validates it with a
+  # pointer-size static_assert. Apply MSVC's empty_bases attribute to the
+  # external type without modifying the dependency itself.
+  set(LV_CPP_OBJECTREF_HEADER "${lv_cpp_SOURCE_DIR}/include/lv/core/objectref.hpp")
+  file(READ "${LV_CPP_OBJECTREF_HEADER}" LV_CPP_OBJECTREF_CONTENT)
+  string(REPLACE
+          "class ObjectRef : public ObjectView,"
+          "class __declspec(empty_bases) ObjectRef : public ObjectView,"
+          LV_CPP_OBJECTREF_CONTENT
+          "${LV_CPP_OBJECTREF_CONTENT}"
+  )
+  file(WRITE "${LV_CPP_OBJECTREF_HEADER}" "${LV_CPP_OBJECTREF_CONTENT}")
+endif ()
 
 # aptumfr/lv currently changes the global standard to C++20.
 # Restore C++26 for the application project on non-MSVC compilers.
 if (MSVC)
-    set(CMAKE_CXX_STANDARD 20)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-else()
-    set(CMAKE_CXX_STANDARD 26)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
+  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+else ()
+  set(CMAKE_CXX_STANDARD 26)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif ()
 
 # =========================================================
 # Project modules
 # =========================================================
 
+add_subdirectory(common)
 add_subdirectory(domain)
 add_subdirectory(data)
 add_subdirectory(infra)
@@ -147,11 +148,11 @@ add_executable(
 target_link_libraries(
         my-lvgl-app
         PRIVATE
-          app
-          data
-          infra
-          lv::lv
-          kangaru
+        app
+        data
+        infra
+        lv::lv
+        kangaru
 )
 
 # =========================================================
@@ -166,4 +167,4 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
           -Wextra
           -Wpedantic
   )
-endif()
+endif ()

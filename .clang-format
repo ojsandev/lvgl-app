@@ -3,15 +3,15 @@ Language: Cpp
 BasedOnStyle: LLVM
 
 # Indentation
-IndentWidth: 4
-TabWidth: 4
+IndentWidth: 2
+TabWidth: 2
 UseTab: Never
 
 # Line width
-ColumnLimit: 100
+ColumnLimit: 120
 
 # Braces
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Stroustrup
 BraceWrapping:
   AfterClass: false
   AfterControlStatement: Never
@@ -27,7 +27,7 @@ BraceWrapping:
 AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-AllowShortBlocksOnASingleLine: Never
+AllowShortBlocksOnASingleLine: Empty
 
 # Pointers and references
 PointerAlignment: Left
@@ -42,7 +42,7 @@ SpacesInSquareBrackets: false
 SpaceAfterCStyleCast: false
 
 # C++ style
-Cpp11BracedListStyle: true
+Cpp11BracedListStyle: Block
 Standard: c++20
 
 # Includes
@@ -56,11 +56,11 @@ IncludeCategories:
 
 # Comments
 FixNamespaceComments: true
-ReflowComments: true
+ReflowComments: IndentOnly
 CommentPragmas: '^ IWYU pragma:'
 
 # Constructors / inheritance
-ConstructorInitializerIndentWidth: 4
+ConstructorInitializerIndentWidth: 2
 PackConstructorInitializers: BinPack
 AllowAllConstructorInitializersOnNextLine: false
 BreakConstructorInitializers: BeforeComma
@@ -74,3 +74,4 @@ AlwaysBreakAfterDefinitionReturnType: None
 PenaltyBreakBeforeFirstCallParameter: 19
 PenaltyBreakComment: 300
 PenaltyBreakString: 1000
+InsertNewlineAtEOF: true

@@ -1,23 +1,55 @@
 #include "MainViewModel.h"
 
-#include <utility>
+#include <ostream>
 
+#include "MainViewUIState.h"
+#include "domain/usecase/IGetCharactersUseCase.h"
 #include "domain/usecase/IUpdateTitleUseCase.h"
+#include "domain/exception/characters/CharacterNotFoundException.h"
+#include "domain/model/CharactersResponse.h"
 
 using namespace app::ui;
 
-MainViewModel::MainViewModel(const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase)
-    : m_title("Initial Title")
-    , m_updateTitleUseCase(updateTitleUseCase)
-{
-}
+MainViewModel::MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
+                             const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase)
+  : m_updateTitleUseCase(updateTitleUseCase)
+    , m_getCharactersUseCase(getCharactersUseCase) {}
 
-void MainViewModel::handleTitleUpdate()
+MainViewUIData MainViewModel::update()
 {
+  try {
     m_title = m_updateTitleUseCase->execute();
+
+    auto [characters, pagination] = m_getCharactersUseCase->execute(20, 1);
+
+    return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
+  }
+  catch (const domain::exception::CharacterNotFoundException&) {
+    return MainViewUIState::errorState();
+  }
 }
 
-const std::string& MainViewModel::title() const noexcept
+MainViewUIData MainViewModel::nextPage() const
 {
-    return m_title;
+  try {
+
+    const auto [characters, pagination] = m_getCharactersUseCase->nextPage();
+    return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
+  }
+  catch (const domain::exception::CharacterNotFoundException& error) {
+    std::print("MainViewModel::nextPage: CharacterNotFoundException caught: {}\n", error.what());
+    return MainViewUIState::errorState();
+  }
+}
+
+MainViewUIData MainViewModel::previousPage() const
+{
+  try {
+    const auto [characters, pagination] = m_getCharactersUseCase->previousPage();
+    return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
+  }
+  catch (const domain::exception::CharacterNotFoundException& error) {
+    std::print("MainViewModel::previousPage: CharacterNotFoundException caught: {}\n", error.what());
+    return MainViewUIState::errorState();
+  }
 }

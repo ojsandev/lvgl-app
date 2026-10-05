@@ -1,8 +1,16 @@
-#include "usecase/UpdateTitleUseCase.h"
+#include "domain/usecase/UpdateTitleUseCase.h"
 
-using namespace domain;
+#include <print>
+
+#include "common/uuid.h"
+
+using namespace domain::usecase;
 
 std::string UpdateTitleUseCase::execute()
 {
-    return "Title changed by use case";
+  const auto uuid = common::uuid::generate();
+
+  std::print("UpdateTitleUseCase::execute: uuid={}\n", uuid);
+
+  return "Title changed by use case: " + uuid;
 }

@@ -3,22 +3,35 @@
 #include <memory>
 #include <string>
 
-namespace domain {
-class IUpdateTitleUseCase;
+#include "MainViewUIState.h"
+
+namespace domain::model {
+struct CharactersResponse;
 }
+
+namespace domain::usecase {
+class IUpdateTitleUseCase;
+class IGetCharactersUseCase;
+} // namespace domain::usecase
 
 namespace app::ui {
 class MainViewModel {
-  public:
-    explicit MainViewModel(const std::shared_ptr<domain::IUpdateTitleUseCase>& updateTitleUseCase);
+public:
+  explicit MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
+                         const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase);
 
-    void handleTitleUpdate();
+  MainViewUIData update();
 
-    [[nodiscard]]
-    const std::string& title() const noexcept;
+  MainViewUIData nextPage() const;
 
-  private:
-    std::string m_title;
-    std::shared_ptr<domain::IUpdateTitleUseCase> m_updateTitleUseCase;
+  MainViewUIData previousPage() const;
+
+private:
+  void handleCharactersResponse(const domain::model::CharactersResponse& response);
+
+private:
+  std::string m_title;
+  std::shared_ptr<domain::usecase::IUpdateTitleUseCase> m_updateTitleUseCase;
+  std::shared_ptr<domain::usecase::IGetCharactersUseCase> m_getCharactersUseCase;
 };
 } // namespace app::ui

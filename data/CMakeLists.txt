@@ -4,6 +4,9 @@ target_sources(
         data
         PRIVATE
         datasource/DemonSlayerDataSource.cpp
+        mapper/CharacterMapper.cpp
+        mapper/ErrorMapper.cpp
+        repository/CharacterRepository.cpp
 )
 
 target_include_directories(
@@ -16,4 +19,5 @@ target_link_libraries(
         data
         PUBLIC
         domain
+        Boost::json
 )

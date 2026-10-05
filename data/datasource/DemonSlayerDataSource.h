@@ -1,25 +1,24 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
+#include "common/types.h"
 #include "http/IHttpClient.h"
 
-namespace data::http
-{
+namespace data::http {
 class IHttpClient;
 }
 
-namespace data::remote
-{
-class DemonSlayerDataSource
-{
-  public:
-    DemonSlayerDataSource(http::IHttpClient& httpClient);
-    ~DemonSlayerDataSource() = default;
+namespace data::datasource {
+class DemonSlayerDataSource {
+public:
+  explicit DemonSlayerDataSource(const std::shared_ptr<http::IHttpClient>& httpClient);
+  ~DemonSlayerDataSource() = default;
 
-    [[nodiscard]] std::string getCharacters() const;
+  [[nodiscard]] std::string getCharacters(common::types::Int32 limit, common::types::Int32 page) const;
 
-  private:
-    http::IHttpClient& m_httpClient;
+private:
+  std::shared_ptr<http::IHttpClient> m_httpClient;
 };
-} // namespace data::remote
+} // namespace data::datasource
