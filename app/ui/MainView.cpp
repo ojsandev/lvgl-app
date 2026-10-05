@@ -3,6 +3,7 @@
 #include <print>
 
 #include "MainViewModel.h"
+#include "common/logger/Logging.h"
 #include "lv/layout/flex.hpp"
 #include "lv/widgets/button.hpp"
 
@@ -19,12 +20,8 @@ MainView::MainView(const int32_t width, const int32_t height, MainViewModel& vie
 void MainView::init()
 {
   const auto root = lv::vbox(m_screen).fill().center_content();
-
   m_titleLabel = lv::Label::create(root).text("");
-
   lv::Button::create(root).text("Click").on_click<&MainView::onClick>(this);
-
-  std::print("MainView::init: widgets created\n");
 }
 
 void MainView::onClick(lv::Event)
@@ -32,5 +29,5 @@ void MainView::onClick(lv::Event)
   auto uiData = m_viewModel.update();
   m_titleLabel.text_fmt("Title: %s\n Characters: %d", uiData.title.c_str(), uiData.characters.size());
 
-  std::print("MainView::onClick: title updated to: {}\n", uiData.title);
+  LOG_DEBUG("title updated to: {}", uiData.title);
 }

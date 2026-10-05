@@ -4,8 +4,8 @@
 
 #include "DataModule.h"
 #include "domain/usecase/UpdateTitleUseCase.h"
-#include "domain/usecase/GetCharactersUseCase.h"
-#include "domain/usecase/IGetCharactersUseCase.h"
+#include "domain/usecase/characters/GetCharactersUseCase.h"
+#include "domain/usecase/characters/IGetCharactersUseCase.h"
 
 namespace app::di {
 

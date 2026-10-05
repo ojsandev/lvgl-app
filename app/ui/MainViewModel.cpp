@@ -3,7 +3,9 @@
 #include <ostream>
 
 #include "MainViewUIState.h"
-#include "domain/usecase/IGetCharactersUseCase.h"
+#include "common/logger/Logging.h"
+#include "domain/exception/characters/CharactersOutOfBoundsException.h"
+#include "domain/usecase/characters/IGetCharactersUseCase.h"
 #include "domain/usecase/IUpdateTitleUseCase.h"
 #include "domain/exception/characters/CharacterNotFoundException.h"
 #include "domain/model/CharactersResponse.h"
@@ -36,8 +38,13 @@ MainViewUIData MainViewModel::nextPage() const
     const auto [characters, pagination] = m_getCharactersUseCase->nextPage();
     return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
   }
+  catch (const domain::exception::CharactersOutOfBoundsException& error) {
+    LOG_ERROR("MainViewModel::nextPage: {}", error.what());
+    return MainViewUIState::errorState();
+  }
   catch (const domain::exception::CharacterNotFoundException& error) {
-    std::print("MainViewModel::nextPage: CharacterNotFoundException caught: {}\n", error.what());
+    LOG_ERROR("MainViewModel::nextPage: {}", error.what());
+
     return MainViewUIState::errorState();
   }
 }
@@ -48,8 +55,13 @@ MainViewUIData MainViewModel::previousPage() const
     const auto [characters, pagination] = m_getCharactersUseCase->previousPage();
     return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
   }
+  catch (const domain::exception::CharactersOutOfBoundsException& error) {
+    LOG_ERROR("MainViewModel::previousPage: {}", error.what());
+    return MainViewUIState::errorState();
+  }
   catch (const domain::exception::CharacterNotFoundException& error) {
-    std::print("MainViewModel::previousPage: CharacterNotFoundException caught: {}\n", error.what());
+    LOG_ERROR("MainViewModel::previousPage: {}", error.what());
+
     return MainViewUIState::errorState();
   }
 }

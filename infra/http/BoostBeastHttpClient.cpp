@@ -13,6 +13,8 @@
 #include <string>
 #include <string_view>
 #include <print>
+
+#include "common/logger/Logging.h"
 #include "exception/HttpException.h"
 #include "tls/CertificateStoreFactory.h"
 
@@ -125,7 +127,7 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
     break;
   }
 
-  std::print("BoostBeastHttpClient::request: Making {} request to URL: {}\n", to_string(httpMethod), url);
+  LOG_INFO("Making {} request to URL: {}", to_string(httpMethod), url);
 
   beast::http::request<beast::http::string_body> httpRequest{httpMethod, target, 11};
 

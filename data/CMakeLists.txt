@@ -19,5 +19,6 @@ target_link_libraries(
         data
         PUBLIC
         domain
+        common
         Boost::json
 )
