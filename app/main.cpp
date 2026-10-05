@@ -5,13 +5,13 @@
 
 int main()
 {
-    kgr::container container;
+  kgr::container container;
 
-    auto& mainViewModel = container.service<app::di::MainViewModel>();
+  auto& mainViewModel = container.service<app::di::MainViewModel>();
 
-    lv::App app({.width = 700, .height = 400}, mainViewModel);
+  lv::App app({ .width = 700, .height = 400 }, mainViewModel);
 
-    app.run();
+  app.run();
 
-    return 0;
+  return 0;
 }

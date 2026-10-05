@@ -5,6 +5,7 @@ target_sources(
         PRIVATE
         http/BoostBeastHttpClient.cpp
         tls/CertificateStoreFactory.cpp
+        http/exception/HttpException.cpp
 )
 
 if(APPLE)

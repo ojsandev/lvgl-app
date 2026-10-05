@@ -1,10 +1,8 @@
 add_library(app
         ui/MainViewModel.cpp
-        App.cpp
-        App.h
         ui/MainView.cpp
-        ui/MainView.h
-        di/AppModule.h
+        ui/MainViewUIState.cpp
+        App.cpp
 )
 
 target_include_directories(app PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

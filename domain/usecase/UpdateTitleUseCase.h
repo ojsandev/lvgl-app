@@ -1,15 +1,24 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "IUpdateTitleUseCase.h"
 
-namespace domain {
-class UpdateTitleUseCase : public IUpdateTitleUseCase {
-  public:
-    UpdateTitleUseCase() = default;
-    ~UpdateTitleUseCase() override = default;
+namespace common::uuid {
+class IUUID;
+}
 
-    std::string execute() override;
+namespace domain::usecase {
+class UpdateTitleUseCase final : public IUpdateTitleUseCase {
+public:
+  UpdateTitleUseCase() = default;
+  ~UpdateTitleUseCase() override = default;
+
+  std::string execute() override;
+
+private:
+  std::shared_ptr<common::uuid::IUUID> m_uuid;
+
 };
-} // namespace domain
+} // namespace domain::usecase

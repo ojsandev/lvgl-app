@@ -4,8 +4,6 @@
 
 #include "ICertificateStore.h"
 
-namespace infra::tls
-{
-std::unique_ptr<ICertificateStore>
-createCertificateStore();
+namespace infra::tls {
+std::unique_ptr<ICertificateStore> createCertificateStore();
 }
