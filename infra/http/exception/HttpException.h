@@ -2,6 +2,7 @@
 
 #include "common/types.h"
 #include <string>
+#include <stdexcept>
 
 namespace infra::http::exception {
 class HttpException : public std::runtime_error {
@@ -16,6 +17,6 @@ public:
 
 private:
   std::string m_message;
-  common::types::Int16 m_code{};
+  common::types::Int16 m_code;
 };
 }

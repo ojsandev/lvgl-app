@@ -5,7 +5,7 @@
 
 using namespace data::mapper;
 
-domain::model::CharactersResponse CharacterMapper::fromJson(const std::string_view json)
+domain::model::CharactersResponse CharacterMapper::fromJson(const std::string_view& json)
 {
   const auto value = boost::json::parse(json);
 
