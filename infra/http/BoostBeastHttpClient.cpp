@@ -11,7 +11,8 @@
 #include <openssl/ssl.h>
 #include <stdexcept>
 #include <string>
-
+#include <string_view>
+#include <print>
 #include "exception/HttpException.h"
 #include "tls/CertificateStoreFactory.h"
 
