@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-
+#include "common/types.h"
 #include "domain/model/Character.h"
 
 namespace app::ui {

@@ -36,10 +36,7 @@ void Logger::fatal(const std::string& message)
   log(message, LogLevel::Fatal);
 }
 
-void Logger::log(
-    const std::string& message,
-    const LogLevel level
-    ) const
+void Logger::log(const std::string& message, const LogLevel level) const
 {
   if (level < m_logLevel) {
     return;
