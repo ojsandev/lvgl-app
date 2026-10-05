@@ -8,6 +8,7 @@
 #include "domain/model/error/Error.h"
 #include "infra/http/exception/HttpException.h"
 #include "mapper/ErrorMapper.h"
+#include "common/logger/Logging.h"
 
 using namespace data::repository;
 
@@ -23,7 +24,7 @@ domain::repository::ICharacterRepository::GetCharactersResult CharacterRepositor
     return mapper::CharacterMapper::fromJson(json);
   }
   catch (infra::http::exception::HttpException& exception) {
-    std::print("CharacterRepository::getCharactersPaginated: {} - {}\n", exception.what(), exception.statusCode());
+    LOG_ERROR("Error occurred while fetching characters: {}", exception.what());
 
     return mapper::ErrorMapper::map(exception.what(), exception.statusCode());
   }

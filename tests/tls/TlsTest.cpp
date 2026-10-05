@@ -1,6 +1,7 @@
 #include <print>
 #include <string>
 
+#include "common/logger/Logging.h"
 #include "http/BoostBeastHttpClient.h"
 
 using namespace infra::http;
@@ -8,20 +9,18 @@ using namespace infra::http;
 int main()
 {
   try {
-    std::print("=== TLS Test ===\n");
+    LOG_INFO("=== TLS Test ===\n");
 
     BoostBeastHttpClient client;
 
     const auto response = client.get("https://www.demonslayer-api.com/api/v1/characters?page=1&limit=1");
 
-    std::print("HTTPS request succeeded!\n\n"
-               "Response:\n{}\n",
-               response);
+    LOG_INFO("HTTPS request succeeded!\n" "Response: \n{}", response);
 
     return 0;
   }
   catch (const std::exception& exception) {
-    std::print("TLS test failed:\n{}\n", exception.what());
+    LOG_ERROR("TLS test failed: {}\n", exception.what());
     return 1;
   }
 }

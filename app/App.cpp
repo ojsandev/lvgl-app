@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 #include <print>
 
+#include "common/logger/Logging.h"
 #include "ui/MainView.h"
 #include "ui/MainViewModel.h"
 
@@ -25,9 +26,8 @@ App::~App()
 
 void App::run()
 {
-  std::print("App::run: starting main loop with width: {}, height: {}\n", m_config.width, m_config.height);
-
   m_isRunning = true;
+  LOG_INFO("App started");
 
   while (m_isRunning) {
     processEvents();
@@ -41,8 +41,7 @@ void App::stop()
   }
 
   m_isRunning = false;
-
-  std::print("App::stop: stopping main loop\n");
+  LOG_INFO("App stopped");
 }
 
 void App::processEvents()
@@ -60,7 +59,7 @@ int SDLCALL App::onWindowEvent(void* userdata, SDL_Event* event)
   }
 
   if (event->type == SDL_QUIT) {
-    std::print("App::onWindowEvent: SDL_QUIT received\n");
+    LOG_DEBUG("App quit requested");
 
     app->stop();
 
@@ -70,29 +69,29 @@ int SDLCALL App::onWindowEvent(void* userdata, SDL_Event* event)
   if (event->type == SDL_WINDOWEVENT) {
     switch (event->window.event) {
     case SDL_WINDOWEVENT_CLOSE:
-      std::print("App::onWindowEvent: Window close requested\n");
+      LOG_DEBUG("Window close requested");
 
       app->stop();
       break;
 
     case SDL_WINDOWEVENT_MOVED:
-      std::print("App::onWindowEvent: Window moved: {}, {}\n", event->window.data1, event->window.data2);
+      LOG_DEBUG("Window moved: {}, {}", event->window.data1, event->window.data2);
       break;
 
     case SDL_WINDOWEVENT_HIDDEN:
-      std::print("App::onWindowEvent: Window hidden\n");
+      LOG_DEBUG("Window hidden");
       break;
 
     case SDL_WINDOWEVENT_SHOWN:
-      std::print("App::onWindowEvent: Window shown\n");
+      LOG_DEBUG("Window shown");
       break;
 
     case SDL_WINDOWEVENT_FOCUS_GAINED:
-      std::print("App::onWindowEvent: Window focus gained\n");
+      LOG_DEBUG("Window focus gained");
       break;
 
     case SDL_WINDOWEVENT_FOCUS_LOST:
-      std::print("App::onWindowEvent: Window focus lost\n");
+      LOG_DEBUG("Window focus lost");
       break;
 
     default:

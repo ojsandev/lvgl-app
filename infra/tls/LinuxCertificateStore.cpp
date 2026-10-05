@@ -1,5 +1,7 @@
 #include "LinuxCertificateStore.h"
 
+#include "common/logger/Logging.h"
+
 using namespace infra::tls;
 
 void LinuxCertificateStore::configure(boost::asio::ssl::context& sslContext)
@@ -15,4 +17,6 @@ void LinuxCertificateStore::configure(boost::asio::ssl::context& sslContext)
     sslContext.add_verify_path("/etc/ssl/certs");
     sslContext.add_verify_path("/usr/local/share/ca-certificates");
   }
+
+  LOG_INFO("Certificate store configured");
 }

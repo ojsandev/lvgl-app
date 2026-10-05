@@ -8,6 +8,8 @@
 #include <wincrypt.h>
 #include <windows.h>
 
+#include "common/logger/Logging.h"
+
 using namespace infra::tls;
 
 void WindowsCertificateStore::configure(boost::asio::ssl::context& context)
@@ -52,9 +54,8 @@ void WindowsCertificateStore::configure(boost::asio::ssl::context& context)
 
   CertCloseStore(certificateStore, 0);
 
-  std::print("WindowsCertificateStore: imported {} certificates\n", importedCertificates);
-
   if (importedCertificates == 0) {
+    LOG_ERROR("No certificates could be imported from Windows ROOT store");
     throw std::runtime_error("No certificates could be imported from Windows ROOT store");
   }
 
