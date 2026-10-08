@@ -7,6 +7,7 @@ target_sources(
         mapper/CharacterMapper.cpp
         mapper/ErrorMapper.cpp
         repository/CharacterRepository.cpp
+        repository/image/CharacterImageRepository.cpp
 )
 
 target_include_directories(

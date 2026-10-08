@@ -13,6 +13,8 @@ class MyLvlAppConan(ConanFile):
         "kangaru/4.3.2",
         "boost/1.91.0",
         "openssl/4.0.2",
+        "libwebp/1.6.0",
+        "avir/3.1"
     )
 
     def generate(self):

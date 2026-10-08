@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "IUpdateTitleUseCase.h"
 
@@ -19,6 +19,5 @@ public:
 
 private:
   std::shared_ptr<common::uuid::IUUID> m_uuid;
-
 };
 } // namespace domain::usecase

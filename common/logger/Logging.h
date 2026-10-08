@@ -2,7 +2,6 @@
 
 #include "Logger.h"
 
-
 namespace common::logger {
 
 inline std::string formatFunctionName(std::string_view prettyFunction)
@@ -30,7 +29,7 @@ inline std::string formatFunctionName(std::string_view prettyFunction)
   return function;
 }
 
-}
+} // namespace common::logger
 
 #ifdef _MSC_VER
 #define LOG_FUNCTION_NAME __FUNCSIG__
@@ -39,36 +38,27 @@ inline std::string formatFunctionName(std::string_view prettyFunction)
 #endif
 
 #ifndef LOG_DEBUG
-#define LOG_DEBUG(...) \
-    common::logger::logger.debug( \
-        common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + \
-        std::format(__VA_ARGS__))
+#define LOG_DEBUG(...)                                                                                                 \
+  common::logger::logger.debug(common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + std::format(__VA_ARGS__))
 #endif
 
 #ifndef LOG_INFO
-#define LOG_INFO(...) \
-    common::logger::logger.info( \
-        common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + \
-        std::format(__VA_ARGS__))
+#define LOG_INFO(...)                                                                                                  \
+  common::logger::logger.info(common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + std::format(__VA_ARGS__))
 #endif
 
 #ifndef LOG_WARNING
-#define LOG_WARNING(...) \
-    common::logger::logger.warning( \
-        common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + \
-        std::format(__VA_ARGS__))
+#define LOG_WARNING(...)                                                                                               \
+  common::logger::logger.warning(common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " +                        \
+                                 std::format(__VA_ARGS__))
 #endif
 
 #ifndef LOG_ERROR
-#define LOG_ERROR(...) \
-    common::logger::logger.error( \
-        common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + \
-        std::format(__VA_ARGS__))
+#define LOG_ERROR(...)                                                                                                 \
+  common::logger::logger.error(common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + std::format(__VA_ARGS__))
 #endif
 
 #ifndef LOG_FATAL
-#define LOG_FATAL(...) \
-    common::logger::logger.fatal( \
-        common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + \
-        std::format(__VA_ARGS__))
+#define LOG_FATAL(...)                                                                                                 \
+  common::logger::logger.fatal(common::logger::formatFunctionName(LOG_FUNCTION_NAME) + ": " + std::format(__VA_ARGS__))
 #endif

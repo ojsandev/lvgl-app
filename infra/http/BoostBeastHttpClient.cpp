@@ -7,12 +7,11 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/url.hpp>
-#include <filesystem>
 #include <openssl/ssl.h>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <print>
+#include <type_traits>
 
 #include "common/logger/Logging.h"
 #include "exception/HttpException.h"
@@ -50,8 +49,14 @@ std::string BoostBeastHttpClient::delete_(const std::string_view url)
   return request(Method::Delete, url);
 }
 
-std::string BoostBeastHttpClient::request(const Method method, std::string_view url, std::string_view body,
-                                          std::string_view contentType)
+std::vector<common::types::UInt8> BoostBeastHttpClient::getBytes(const std::string_view url)
+{
+  return requestBytes(Method::Get, url);
+}
+
+template <typename ResponseBody>
+auto BoostBeastHttpClient::requestImpl(const Method method, const std::string_view url, const std::string_view body,
+                                       const std::string_view contentType)
 {
   const auto parsed = boost::urls::parse_uri_reference(url);
 
@@ -65,11 +70,10 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
     throw std::runtime_error("Only HTTPS URLs are supported");
   }
 
-  const std::string host{uri.host()};
+  const std::string host{ uri.host() };
+  const std::string port{ uri.port().empty() ? "443" : uri.port() };
 
-  const std::string port{uri.port().empty() ? "443" : uri.port()};
-
-  std::string target{uri.encoded_target()};
+  std::string target{ uri.encoded_target() };
 
   if (target.empty()) {
     target = "/";
@@ -77,7 +81,7 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
 
   boost::asio::io_context ioContext;
 
-  boost::asio::ssl::context sslContext{boost::asio::ssl::context::tls_client};
+  boost::asio::ssl::context sslContext{ boost::asio::ssl::context::tls_client };
 
   auto certificateStore = infra::tls::createCertificateStore();
 
@@ -87,7 +91,7 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
 
   using SslStream = boost::asio::ssl::stream<boost::asio::ip::tcp::socket>;
 
-  SslStream stream{ioContext, sslContext};
+  SslStream stream{ ioContext, sslContext };
 
   stream.set_verify_callback(boost::asio::ssl::host_name_verification(host));
 
@@ -95,7 +99,7 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
     throw std::runtime_error("Failed to set TLS SNI");
   }
 
-  boost::asio::ip::tcp::resolver resolver{ioContext};
+  boost::asio::ip::tcp::resolver resolver{ ioContext };
 
   const auto results = resolver.resolve(host, port);
 
@@ -129,19 +133,20 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
 
   LOG_INFO("Making {} request to URL: {}", to_string(httpMethod), url);
 
-  beast::http::request<beast::http::string_body> httpRequest{httpMethod, target, 11};
+  beast::http::request<beast::http::string_body> httpRequest{ httpMethod, target, 11 };
 
   httpRequest.set(beast::http::field::host, host);
-
   httpRequest.set(beast::http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
-  httpRequest.set(beast::http::field::accept, "application/json");
+  if constexpr (std::is_same_v<ResponseBody, beast::http::string_body>) {
+    httpRequest.set(beast::http::field::accept, "application/json");
+  } else {
+    httpRequest.set(beast::http::field::accept, "image/webp");
+  }
 
   if (!body.empty()) {
     httpRequest.body() = body;
-
     httpRequest.set(beast::http::field::content_type, contentType);
-
     httpRequest.prepare_payload();
   }
 
@@ -149,7 +154,7 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
 
   beast::flat_buffer buffer;
 
-  beast::http::response<beast::http::string_body> httpResponse;
+  beast::http::response<ResponseBody> httpResponse;
 
   beast::http::read(stream, buffer, httpResponse);
 
@@ -158,12 +163,23 @@ std::string BoostBeastHttpClient::request(const Method method, std::string_view 
   stream.shutdown(error);
 
   if (error != std::errc::not_connected && error != boost::asio::ssl::error::stream_truncated && error) {
-    throw exception::HttpException{"Failed to shutdown SSL stream: " + error.message()};
+    throw exception::HttpException{ "Failed to shutdown SSL stream: " + error.message() };
   }
 
   if (const auto statusCode = httpResponse.result_int(); statusCode < 200 || statusCode >= 300) {
-    throw exception::HttpException{httpResponse.reason(), static_cast<common::types::Int16>(statusCode)};
+    throw exception::HttpException{ httpResponse.reason(), static_cast<common::types::Int16>(statusCode) };
   }
 
-  return httpResponse.body();
+  return std::move(httpResponse.body());
+}
+
+std::string BoostBeastHttpClient::request(const Method method, const std::string_view url, const std::string_view body,
+                                          const std::string_view contentType)
+{
+  return requestImpl<beast::http::string_body>(method, url, body, contentType);
+}
+
+std::vector<common::types::UInt8> BoostBeastHttpClient::requestBytes(const Method method, const std::string_view url)
+{
+  return requestImpl<beast::http::vector_body<common::types::UInt8>>(method, url);
 }

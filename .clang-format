@@ -11,17 +11,22 @@ UseTab: Never
 ColumnLimit: 120
 
 # Braces
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: false
   AfterControlStatement: Never
   AfterEnum: false
-  AfterFunction: false
+  AfterFunction: true
   AfterNamespace: false
-  AfterStruct: false
-  AfterUnion: false
+  AfterStruct: true
+  AfterUnion: true
+  AfterCaseLabel: false
   BeforeCatch: false
   BeforeElse: false
+  BeforeLambdaBody: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
 
 # Short constructs
 AllowShortFunctionsOnASingleLine: Empty
@@ -43,7 +48,7 @@ SpaceAfterCStyleCast: false
 
 # C++ style
 Cpp11BracedListStyle: Block
-Standard: c++20
+Standard: Latest
 
 # Includes
 IncludeBlocks: Regroup

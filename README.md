@@ -499,6 +499,13 @@ The build script provides a single entry point for the most common development o
 
 ---
 
-## License
+## 📄 License
 
-Add the project license information here.
+This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
+
+### Permissions & Conditions
+* **Commercial use, modification, and distribution** are allowed.
+* **Source code disclosure** is mandatory if you distribute modified versions.
+* **Same license**: Any derivatives or modifications must be released under the GPLv3 license as well.
+
+

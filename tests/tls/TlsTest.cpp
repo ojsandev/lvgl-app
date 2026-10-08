@@ -1,3 +1,5 @@
+#include <fstream>
+#include <ios>
 #include <print>
 #include <string>
 
@@ -18,8 +20,7 @@ int main()
     LOG_INFO("HTTPS request succeeded!\n" "Response: \n{}", response);
 
     return 0;
-  }
-  catch (const std::exception& exception) {
+  } catch (const std::exception& exception) {
     LOG_ERROR("TLS test failed: {}\n", exception.what());
     return 1;
   }

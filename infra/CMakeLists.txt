@@ -6,6 +6,7 @@ target_sources(
         http/BoostBeastHttpClient.cpp
         tls/CertificateStoreFactory.cpp
         http/exception/HttpException.cpp
+        image/ImageResizer.cpp
 )
 
 if(APPLE)
@@ -58,4 +59,6 @@ target_link_libraries(
         Boost::boost
         Boost::url
         openssl::openssl
+        avir::avir
+        libwebp::libwebp
 )

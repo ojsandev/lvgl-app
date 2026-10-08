@@ -5,11 +5,15 @@
 using namespace infra::http::exception;
 
 HttpException::HttpException(std::string message, const common::types::Int16 statusCode)
-  : runtime_error(message),
-    m_message(std::move(message)),
-    m_code(statusCode) {}
+  : runtime_error(message)
+  , m_message(std::move(message))
+  , m_code(statusCode)
+{}
 
-HttpException::HttpException(std::string message) : runtime_error(message), m_message(std::move(message)) {}
+HttpException::HttpException(std::string message)
+  : runtime_error(message)
+  , m_message(std::move(message))
+{}
 
 const char* HttpException::what() const noexcept
 {

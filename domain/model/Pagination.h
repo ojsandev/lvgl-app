@@ -5,7 +5,8 @@
 #include "common/types.h"
 
 namespace domain::model {
-struct Pagination {
+struct Pagination
+{
   common::types::UInt64 totalElements;
   common::types::UInt64 elementsOnPage;
   common::types::UInt64 currentPage;

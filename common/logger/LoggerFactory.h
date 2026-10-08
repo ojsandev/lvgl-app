@@ -7,4 +7,4 @@ class LoggerFactory {
 public:
   static Logger create();
 };
-}
+} // namespace common::logger

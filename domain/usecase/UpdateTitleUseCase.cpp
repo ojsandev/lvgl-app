@@ -2,8 +2,8 @@
 
 #include <print>
 
-#include "common/uuid.h"
 #include "common/logger/Logging.h"
+#include "common/uuid.h"
 
 using namespace domain::usecase;
 

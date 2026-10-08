@@ -66,6 +66,11 @@ int SDLCALL App::onWindowEvent(void* userdata, SDL_Event* event)
     return 0;
   }
 
+  if (event->type == SDL_MOUSEWHEEL) {
+    LOG_DEBUG("Mouse wheel requested: x={}, y={}", event->wheel.x, event->wheel.y);
+    event->wheel.y = -event->wheel.y;
+  }
+
   if (event->type == SDL_WINDOWEVENT) {
     switch (event->window.event) {
     case SDL_WINDOWEVENT_CLOSE:

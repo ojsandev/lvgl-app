@@ -6,7 +6,8 @@
 #include "Pagination.h"
 
 namespace domain::model {
-struct CharactersResponse {
+struct CharactersResponse
+{
   std::vector<Character> characters;
   Pagination pagination;
 };
