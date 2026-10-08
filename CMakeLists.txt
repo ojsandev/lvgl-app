@@ -42,7 +42,7 @@ set(CONFIG_LV_USE_THORVG_INTERNAL ON CACHE BOOL "" FORCE)
 # Dependencies
 # =========================================================
 
-set(LIBS SDL2 kangaru Boost OpenSSL)
+set(LIBS SDL2 kangaru Boost OpenSSL WebP avir)
 foreach (lib ${LIBS})
   find_package(${lib} CONFIG REQUIRED)
 endforeach ()
@@ -77,6 +77,7 @@ target_link_libraries(
         lvgl
         PUBLIC
         SDL2::SDL2
+        libwebp::libwebp
 )
 
 # =========================================================

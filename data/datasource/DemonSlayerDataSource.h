@@ -18,6 +18,8 @@ public:
 
   [[nodiscard]] std::string getCharacters(common::types::Int32 limit, common::types::Int32 page) const;
 
+  [[nodiscard]] std::vector<common::types::UInt8> getCharacterImage(common::types::Int32 characterId) const;
+
 private:
   std::shared_ptr<http::IHttpClient> m_httpClient;
 };

@@ -1,5 +1,4 @@
-#ifndef LV_CONF_H
-#define LV_CONF_H
+#pragma once
 
 /* ---------------------------------------------------------
  * Display
@@ -8,10 +7,15 @@
 #define LV_COLOR_DEPTH 32
 
 /* ---------------------------------------------------------
- * Desktop backend
+ * Desktop backend — SDL
  * --------------------------------------------------------- */
 
 #define LV_USE_SDL 1
+
+#define LV_SDL_RENDER_MODE LV_DISPLAY_RENDER_MODE_DIRECT
+#define LV_SDL_BUF_COUNT 1
+#define LV_SDL_ACCELERATED 1
+#define LV_SDL_MOUSEWHEEL_MODE LV_SDL_MOUSEWHEEL_MODE_CROWN
 
 /* ---------------------------------------------------------
  * Widgets
@@ -22,9 +26,39 @@
 #define LV_USE_FLEX 1
 
 /* ---------------------------------------------------------
+ * Image decoders
+ * --------------------------------------------------------- */
+
+#define LV_USE_LIBWEBP 1
+
+/* ---------------------------------------------------------
+ * File system
+ * --------------------------------------------------------- */
+
+#define LV_USE_FS_STDIO 1
+#define LV_FS_STDIO_LETTER 'A'
+#define LV_FS_STDIO_PATH ""
+#define LV_FS_STDIO_CACHE_SIZE 0
+
+/* ---------------------------------------------------------
+ * Memory
+ * --------------------------------------------------------- */
+
+#define LV_MEM_SIZE (8U * 1024U * 1024U)
+
+/* ---------------------------------------------------------
+ * Image / decoder cache
+ * --------------------------------------------------------- */
+
+#define LV_CACHE_DEF_SIZE (2U * 1024U * 1024U)
+
+/* ---------------------------------------------------------
  * Reactive state / observer
  * --------------------------------------------------------- */
 
 #define LV_USE_OBSERVER 1
 
-#endif /* LV_CONF_H */
+/**---------------------------------------------------------
+ * Naming
+ * --------------------------------------------------------- */
+#define LV_USE_OBJ_NAME 1

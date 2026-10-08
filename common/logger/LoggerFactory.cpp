@@ -6,8 +6,9 @@ Logger LoggerFactory::create()
 {
 
 #ifdef LOGGER_DEBUG
- return Logger{LogLevel::Debug};;
+  return Logger{ LogLevel::Debug };
+  ;
 #else
-  return Logger{LogLevel::Info};
+  return Logger{ LogLevel::Info };
 #endif
 }

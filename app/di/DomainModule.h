@@ -12,25 +12,28 @@ namespace app::di {
 struct UpdateTitleUseCaseImplService;
 
 struct UpdateTitleUseCaseService
-    : kgr::abstract_shared_service<domain::usecase::IUpdateTitleUseCase>
-      , kgr::defaults_to<UpdateTitleUseCaseImplService> {};
+  : kgr::abstract_shared_service<domain::usecase::IUpdateTitleUseCase>
+  , kgr::defaults_to<UpdateTitleUseCaseImplService>
+{};
 
 struct UpdateTitleUseCaseImplService
-    : kgr::shared_service<domain::usecase::UpdateTitleUseCase>
-      , kgr::overrides<UpdateTitleUseCaseService> {};
+  : kgr::shared_service<domain::usecase::UpdateTitleUseCase>
+  , kgr::overrides<UpdateTitleUseCaseService>
+{};
 
 // GetCharactersUseCase
 
 struct GetCharactersUseCaseImplService;
 
-struct GetCharactersUseCaseService
-    : kgr::abstract_shared_service<domain::usecase::IGetCharactersUseCase>
-      , kgr::defaults_to<GetCharactersUseCaseImplService> {};
+struct GetCharactersUseCase
+  : kgr::abstract_shared_service<domain::usecase::IGetCharactersUseCase>
+  , kgr::defaults_to<GetCharactersUseCaseImplService>
+{};
 
 struct GetCharactersUseCaseImplService
-    : kgr::shared_service<
-        domain::usecase::GetCharactersUseCase,
-        kgr::dependency<CharacterRepository>>
-      , kgr::overrides<GetCharactersUseCaseService> {};
+  : kgr::shared_service<domain::usecase::GetCharactersUseCase,
+                        kgr::dependency<CharacterRepository, CharacterImageRepository, ImageResizerRepository>>
+  , kgr::overrides<GetCharactersUseCase>
+{};
 
 } // namespace app::di

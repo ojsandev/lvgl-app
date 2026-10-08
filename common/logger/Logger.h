@@ -23,4 +23,4 @@ private:
 
 extern Logger logger;
 
-}
+} // namespace common::logger

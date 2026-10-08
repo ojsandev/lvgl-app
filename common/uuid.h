@@ -9,4 +9,4 @@ inline std::string generate()
   boost::uuids::random_generator gen;
   return boost::uuids::to_string(gen());
 }
-}
+} // namespace common::uuid

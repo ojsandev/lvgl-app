@@ -27,9 +27,6 @@ public:
   MainViewUIData previousPage() const;
 
 private:
-  void handleCharactersResponse(const domain::model::CharactersResponse& response);
-
-private:
   std::string m_title;
   std::shared_ptr<domain::usecase::IUpdateTitleUseCase> m_updateTitleUseCase;
   std::shared_ptr<domain::usecase::IGetCharactersUseCase> m_getCharactersUseCase;

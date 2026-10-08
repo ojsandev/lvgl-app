@@ -13,7 +13,8 @@ class MainViewModel;
 namespace lv {
 class App {
 public:
-  struct Config {
+  struct Config
+  {
     int width;
     int height;
   };

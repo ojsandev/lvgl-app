@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+
 #include "domain/model/error/Error.h"
 
 namespace data::mapper {
@@ -11,4 +12,4 @@ public:
 
   static domain::model::error::Error map(const std::string& message, int code);
 };
-}
+} // namespace data::mapper

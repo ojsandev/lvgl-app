@@ -7,6 +7,6 @@
 
 namespace app::di {
 struct MainViewModel
-    : kgr::single_service<ui::MainViewModel,
-                          kgr::dependency<UpdateTitleUseCaseService, GetCharactersUseCaseService>> {};
+  : kgr::single_service<ui::MainViewModel, kgr::dependency<UpdateTitleUseCaseService, GetCharactersUseCase>>
+{};
 } // namespace app::di

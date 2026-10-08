@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <variant>
+
 #include "domain/repository/ICharacterRepository.h"
 
 namespace data::datasource {
@@ -15,7 +16,6 @@ public:
   ~CharacterRepository() override = default;
 
   GetCharactersResult getCharactersPaginated(common::types::Int32 limit, common::types::Int32 page) override;
-
 
 private:
   std::shared_ptr<datasource::DemonSlayerDataSource> m_demonSlayerDataSource;

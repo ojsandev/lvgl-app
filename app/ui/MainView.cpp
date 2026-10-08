@@ -1,23 +1,11 @@
 #include "MainView.h"
 
-#include <print>
-
 #include "MainViewModel.h"
 #include "common/logger/Logging.h"
 #include "lv/layout/flex.hpp"
-#include "lv/widgets/button.hpp"
+#include "theme/Colors.h"
 
 using namespace app::ui;
-
-namespace {
-constexpr auto kBackground = lv_color_hex(0x0F1117);
-constexpr auto kSurface = lv_color_hex(0x191C24);
-constexpr auto kPrimary = lv_color_hex(0x6C63FF);
-constexpr auto kPrimaryPressed = lv_color_hex(0x554DCC);
-constexpr auto kText = lv_color_hex(0xF8FAFC);
-constexpr auto kTextSecondary = lv_color_hex(0xA7AFBF);
-constexpr auto kBorder = lv_color_hex(0x292E3A);
-} // namespace
 
 MainView::MainView(const int32_t width, const int32_t height, MainViewModel& viewModel)
   : m_viewModel(viewModel)
@@ -29,65 +17,90 @@ MainView::MainView(const int32_t width, const int32_t height, MainViewModel& vie
 
 void MainView::init()
 {
-  initStyles();
+  const auto root =
+      lv::vbox(m_screen)
+      .fill()
+      .padding(8)
+      .gap(16)
+      .radius(false)
+      .border_color(theme::border())
+      .bg_color(theme::background());
 
-  m_screen.add_style(m_screenStyle.get());
+  m_titleLabel = lv::Label::create(root).text("Demon Slayer");
+  m_titleLabel.add_style(m_styles.title().get());
 
-  const auto root = lv::vbox(m_screen)
-                         .fill()
-                         .center_content()
-                         .padding(32)
-                         .gap(16)
-                         .bg_color(kBackground);
+  m_characterList = std::make_unique<CharacterList>(root);
 
-  m_titleLabel = lv::Label::create(root)
-                     .text("Characters")
-                     .add_style(m_titleStyle.get());
+  const auto pagination = lv::hbox(root)
+                          .width(lv_pct(100))
+                          .height(56)
+                          .padding(8)
+                          .gap(12)
+                          .center_content()
+                          .add_style(m_styles.pagination().get());
 
-  lv::Button::create(root)
-      .text("Load characters")
-      .add_style(m_buttonStyle.get())
-      .add_style(m_buttonPressedStyle.get(), LV_STATE_PRESSED)
-      .on_click<&MainView::onClick>(this);
+  m_previousButton = lv::Button::create(pagination)
+                     .text("Previous")
+                     .on_click<&MainView::onPreviousPage>(this);
+  m_previousButton.add_style(m_styles.secondaryButton().get()).add_style(
+      m_styles.disabledButton().get(), LV_STATE_DISABLED);
+
+  m_pageLabel = lv::Label::create(pagination).text("Page 0 / 0");
+  m_pageLabel.add_style(m_styles.secondaryText().get());
+
+  m_nextButton = lv::Button::create(pagination).text("Next").on_click<&MainView::onNextPage>(this);
+  m_nextButton.add_style(m_styles.primaryButton().get())
+              .add_style(m_styles.primaryButtonPressed().get(), LV_STATE_PRESSED)
+              .add_style(m_styles.disabledButton().get(), LV_STATE_DISABLED);
+
+  const auto uiData = m_viewModel.update();
+
+  render(uiData);
 }
 
-void MainView::initStyles()
+void MainView::render(const MainViewUIData& uiData)
 {
-  m_screenStyle
-      .bg_color(kBackground)
-      .bg_opa(LV_OPA_COVER);
+  if (uiData.hasError) {
+    m_pageLabel.text("Unable to load characters");
 
-  m_titleStyle
-      .text_color(kText)
-      .text_align(LV_TEXT_ALIGN_CENTER)
-      .pad_all(8);
+    m_previousButton.enabled(false);
+    m_nextButton.enabled(false);
 
-  m_buttonStyle
-      .bg_color(kPrimary)
-      .bg_opa(LV_OPA_COVER)
-      .text_color(kText)
-      .radius(12)
-      .padding(14)
-      .padding_hor(24)
-      .border_width(0)
-      .shadow_width(12)
-      .shadow_opa(LV_OPA_20)
-      .shadow_offset(0, 4);
+    m_characterList->setCharacters({});
 
-  m_buttonPressedStyle
-      .bg_color(kPrimaryPressed)
-      .shadow_width(4)
-      .shadow_opa(LV_OPA_10)
-      .transform_scale(245);
+    return;
+  }
+
+  m_pageLabel.text_fmt("Page %llu / %llu", uiData.currentPage, uiData.totalPages);
+
+  m_previousButton.enabled(uiData.hasPreviousPage);
+  m_nextButton.enabled(uiData.hasNextPage);
+  m_characterList->setCharacters(uiData.characters);
 }
 
 void MainView::onClick(lv::Event)
 {
-  auto uiData = m_viewModel.update();
-  m_titleLabel.text_fmt(
-      "Title: %s\nCharacters: %d",
-      uiData.title.c_str(),
-      uiData.characters.size());
+  const auto uiData = m_viewModel.update();
 
-  LOG_DEBUG("title updated to: {}", uiData.title);
+  render(uiData);
+
+  LOG_INFO("page={}/{}", uiData.currentPage, uiData.totalPages);
+}
+
+void MainView::onNextPage(lv::Event)
+{
+  const auto uiData = m_viewModel.nextPage();
+
+  render(uiData);
+
+  LOG_INFO("page={}/{}", uiData.currentPage, uiData.totalPages);
+}
+
+void MainView::onPreviousPage(lv::Event)
+{
+  const auto uiData = m_viewModel.previousPage();
+
+  render(uiData);
+
+  LOG_INFO("page={}/{}", uiData.currentPage, uiData.totalPages);
 }

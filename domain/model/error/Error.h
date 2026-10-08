@@ -14,8 +14,9 @@ enum class Reason {
   InternalServerError = 6
 };
 
-struct Error {
+struct Error
+{
   Reason reason;
   std::string message;
 };
-}
+} // namespace domain::model::error
