@@ -1,7 +1,7 @@
 #pragma once
 #include "common/types.h"
-#include "lv/core/objectref.hpp"
 #include "lv/core/object.hpp"
+#include "lv/core/objectref.hpp"
 #include "lv/widgets/label.hpp"
 
 namespace app::ui::utils {
@@ -13,8 +13,7 @@ inline void enableEventBubble(const lv::ObjectRef& object)
     return;
   }
 
-  const auto childCount =
-      static_cast<common::types::Int32>(object.child_count());
+  const auto childCount = static_cast<common::types::Int32>(object.child_count());
 
   for (common::types::Int32 i = 0; i < childCount; ++i) {
 
@@ -40,4 +39,4 @@ inline void clearFlagRecursive(const lv::ObjectRef& object, const ObjectFlag fla
   }
 }
 
-}
+} // namespace app::ui::utils

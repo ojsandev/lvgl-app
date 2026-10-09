@@ -17,7 +17,9 @@ int main()
 
     const auto response = client.get("https://www.demonslayer-api.com/api/v1/characters?page=1&limit=1");
 
-    LOG_INFO("HTTPS request succeeded!\n" "Response: \n{}", response);
+    LOG_INFO("HTTPS request succeeded!\n"
+             "Response: \n{}",
+             response);
 
     return 0;
   } catch (const std::exception& exception) {

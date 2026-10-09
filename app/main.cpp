@@ -9,7 +9,7 @@ int main()
 
   auto& mainViewModel = container.service<app::di::MainViewModel>();
 
-  lv::App app({ .width = 900, .height = 700 }, mainViewModel);
+  lv::App app({ .width = 800, .height = 565 }, mainViewModel);
 
   app.run();
 

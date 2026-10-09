@@ -1,8 +1,5 @@
 #include "App.h"
 
-#include <SDL2/SDL.h>
-#include <print>
-
 #include "common/logger/Logging.h"
 #include "ui/MainView.h"
 #include "ui/MainViewModel.h"
@@ -11,17 +8,22 @@ using namespace lv;
 
 App::App(const Config config, app::ui::MainViewModel& viewModel)
   : m_config(config)
-  , m_isRunning(false)
-  , m_viewModel(viewModel)
+    , m_isRunning(false)
+    , m_viewModel(viewModel)
+    , m_display(config.width, config.height)
 {
-  m_view = std::make_unique<app::ui::MainView>(m_config.width, m_config.height, m_viewModel);
+  m_display.resizable(true);
+  m_display.minimumSize(config.width, config.height);
 
-  SDL_AddEventWatch(&App::onWindowEvent, this);
+  m_view = std::make_unique<app::ui::MainView>(m_display, m_viewModel);
+
+  m_display.raise();
+  m_display.addEventWatch(&App::onWindowEvent, this);
 }
 
 App::~App()
 {
-  SDL_DelEventWatch(&App::onWindowEvent, this);
+  m_display.removeEventWatch(&App::onWindowEvent, this);
 }
 
 void App::run()
@@ -59,23 +61,17 @@ int SDLCALL App::onWindowEvent(void* userdata, SDL_Event* event)
   }
 
   if (event->type == SDL_QUIT) {
-    LOG_DEBUG("App quit requested");
-
     app->stop();
-
     return 0;
   }
 
   if (event->type == SDL_MOUSEWHEEL) {
-    LOG_DEBUG("Mouse wheel requested: x={}, y={}", event->wheel.x, event->wheel.y);
     event->wheel.y = -event->wheel.y;
   }
 
   if (event->type == SDL_WINDOWEVENT) {
     switch (event->window.event) {
     case SDL_WINDOWEVENT_CLOSE:
-      LOG_DEBUG("Window close requested");
-
       app->stop();
       break;
 

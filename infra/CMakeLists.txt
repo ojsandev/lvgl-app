@@ -7,6 +7,7 @@ target_sources(
         tls/CertificateStoreFactory.cpp
         http/exception/HttpException.cpp
         image/ImageResizer.cpp
+        display/sdl/SDLDisplay.cpp
 )
 
 if(APPLE)
@@ -43,6 +44,21 @@ if(UNIX AND NOT APPLE)
           infra
           PRIVATE
           tls/LinuxCertificateStore.cpp
+  )
+endif()
+
+if(TARGET SDL2::SDL2 AND TARGET lv::lv)
+  target_sources(
+          infra
+          PRIVATE
+          display/sdl/SDLDisplay.cpp
+  )
+
+  target_link_libraries(
+          infra
+          PUBLIC
+          SDL2::SDL2
+          lv::lv
   )
 endif()
 

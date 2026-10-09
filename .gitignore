@@ -1,8 +1,13 @@
+
+# Build artifacts
 /build/
-dist/
+/dist/
 /.idea/
 /.vscode/
 .DS_Store
+
+# Local ESP-IDF Installation Manager configuration
+/eim_config.toml
 
 # Conan generated files
 /conan.lock
@@ -17,3 +22,12 @@ dist/
 *.dmg
 *.AppImage
 *.exe
+
+# ESP-IDF generated configuration
+esp32/sdkconfig
+esp32/sdkconfig.old
+
+# ESP-IDF build artifacts and downloaded dependencies
+esp32/build/
+esp32/managed_components/
+esp32/.deps/
