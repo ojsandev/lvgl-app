@@ -1,0 +1,51 @@
+name: ESP-IDF Firmware
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'esp32/**'
+      - 'app/ui/**'
+      - 'common/**'
+      - 'infra/display/**'
+      - 'lv_conf.h'
+      - '.github/workflows/esp-idf.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: esp-idf-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-firmware:
+    name: Build ESP32-S3 firmware (ESP-IDF 5.5.5)
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ESP-IDF
+        uses: espressif/install-esp-idf-action@v1
+        with:
+          version: v5.5.5
+
+      - name: Select ESP32-S3 target
+        working-directory: esp32
+        run: idf.py set-target esp32s3
+
+      - name: Build firmware
+        working-directory: esp32
+        run: idf.py build
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32s3-firmware-${{ github.sha }}
+          path: |
+            esp32/build/*.bin
+            esp32/build/bootloader/bootloader.bin
+            esp32/build/partition_table/partition-table.bin
+            esp32/build/flasher_args.json
+          if-no-files-found: error
+          retention-days: 14
