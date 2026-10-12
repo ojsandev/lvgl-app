@@ -1,13 +1,25 @@
 name: ESP-IDF Firmware
 
 on:
+  push:
+    paths:
+      - 'esp32/**'
+      - 'app/ui/**'
+      - 'app/utils/**'
+      - 'common/**'
+      - 'domain/**'
+      - 'infra/display/**'
+      - 'lv_conf.h'
+      - '.github/workflows/esp-idf.yml'
   pull_request:
     branches:
       - master
     paths:
       - 'esp32/**'
       - 'app/ui/**'
+      - 'app/utils/**'
       - 'common/**'
+      - 'domain/**'
       - 'infra/display/**'
       - 'lv_conf.h'
       - '.github/workflows/esp-idf.yml'
