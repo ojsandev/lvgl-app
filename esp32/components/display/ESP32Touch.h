@@ -1,6 +1,7 @@
 #pragma once
 
 #include <driver/i2c_master.h>
+#include "common/types.h"
 
 namespace infra::display::esp32 {
 
@@ -20,27 +21,29 @@ public:
 
   [[nodiscard]] bool touched() const noexcept;
 
-  bool read(uint16_t& x, uint16_t& y) noexcept;
+  bool read(common::types::UInt16& x, common::types::UInt16& y) noexcept;
+
+  void setBacklight(bool value);
 
 private:
   void initI2C();
   void initCH422G();
   void initGT911();
 
-  void ch422gWrite(uint8_t reg, uint8_t value);
+  void ch422gWrite(common::types::UInt8 reg, common::types::UInt8 value);
 
-  void ch422gOutput(uint8_t pin, bool value);
+  void ch422gOutput(common::types::UInt8 pin, bool value);
 
-  void writeRegister(uint16_t reg, uint8_t value);
+  void writeRegister(common::types::UInt16 reg, common::types::UInt8 value);
 
-  bool readRegisters(uint16_t reg, uint8_t* data, size_t size) noexcept;
+  bool readRegisters(common::types::UInt16 reg, common::types::UInt8* data, size_t size) noexcept;
 
 private:
   i2c_master_bus_handle_t m_bus = nullptr;
   i2c_master_dev_handle_t m_gt911 = nullptr;
   i2c_master_dev_handle_t m_ch422g = nullptr;
 
-  uint8_t m_ch422gOutput = 0xFF;
+  common::types::UInt8 m_ch422gOutput = 0xFF;
 };
 
 } // namespace infra::display::esp32

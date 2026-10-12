@@ -48,12 +48,6 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(TARGET SDL2::SDL2 AND TARGET lv::lv)
-  target_sources(
-          infra
-          PRIVATE
-          display/sdl/SDLDisplay.cpp
-  )
-
   target_link_libraries(
           infra
           PUBLIC

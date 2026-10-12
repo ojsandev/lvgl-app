@@ -39,7 +39,7 @@ private:
 
   static void tickCallback(void* arg);
 
-  static bool colorTransDoneCallback(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t* eventData,
+  static bool colorTransDoneCallback(esp_lcd_panel_handle_t _, const esp_lcd_rgb_panel_event_data_t* __,
                                      void* userData);
 
 private:

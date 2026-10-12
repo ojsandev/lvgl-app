@@ -14,9 +14,9 @@ namespace {
 
 constexpr char TAG[] = "ESP32Touch";
 
-constexpr uint16_t GT911_STATUS = 0x814E;
-constexpr uint16_t GT911_PRODUCT_ID = 0x8140;
-constexpr uint16_t GT911_CONFIG = 0x8047;
+constexpr common::types::UInt16 GT911_STATUS = 0x814E;
+constexpr common::types::UInt16 GT911_PRODUCT_ID = 0x8140;
+constexpr common::types::UInt16 GT911_CONFIG = 0x8047;
 
 } // namespace
 
@@ -120,7 +120,7 @@ void ESP32Touch::initCH422G()
 
 void ESP32Touch::initGT911()
 {
-  uint8_t productId[4]{};
+  common::types::UInt8 productId[4]{};
 
   if (!readRegisters(GT911_PRODUCT_ID, productId, sizeof(productId))) {
     ESP_LOGE(TAG, "Unable to read GT911 product ID");
@@ -129,7 +129,7 @@ void ESP32Touch::initGT911()
 
   ESP_LOGI(TAG, "GT911 ID: %02X %02X %02X, config: %u", productId[0], productId[1], productId[2], productId[3]);
 
-  uint8_t configVersion = 0;
+  common::types::UInt8 configVersion = 0;
 
   if (!readRegisters(GT911_CONFIG, &configVersion, 1)) {
     ESP_LOGE(TAG, "Unable to read GT911 configuration");
@@ -141,24 +141,17 @@ void ESP32Touch::initGT911()
 
 bool ESP32Touch::touched() const noexcept
 {
-  constexpr uint8_t address[] = {0x81, 0x4E};
-  uint8_t status = 0;
+  constexpr common::types::UInt8 address[] = {0x81, 0x4E};
+  common::types::UInt8 status = 0;
 
-  const esp_err_t result = i2c_master_transmit_receive(
-      m_gt911,
-      address,
-      sizeof(address),
-      &status,
-      sizeof(status),
-      100
-      );
+  const esp_err_t result = i2c_master_transmit_receive(m_gt911, address, sizeof(address), &status, sizeof(status), 100);
 
   return result == ESP_OK && (status & 0x80U) != 0;
 }
 
-bool ESP32Touch::read(uint16_t& x, uint16_t& y) noexcept
+bool ESP32Touch::read(common::types::UInt16& x, common::types::UInt16& y) noexcept
 {
-  uint8_t status = 0;
+  common::types::UInt8 status = 0;
 
   if (!readRegisters(GT911_STATUS, &status, 1)) {
     return false;
@@ -168,53 +161,53 @@ bool ESP32Touch::read(uint16_t& x, uint16_t& y) noexcept
     return false;
   }
 
-  const uint8_t pointCount = status & 0x0F;
+  const common::types::UInt8 pointCount = status & 0x0F;
 
   if (pointCount == 0 || pointCount > 5) {
     return false;
   }
 
-  uint8_t data[8]{};
+  common::types::UInt8 data[8]{};
 
   if (!readRegisters(GT911_STATUS + 1, data, sizeof(data))) {
     return false;
   }
 
-  x = static_cast<uint16_t>(data[1] | (static_cast<uint16_t>(data[2]) << 8));
+  x = static_cast<common::types::UInt16>(data[1] | (static_cast<common::types::UInt16>(data[2]) << 8));
 
-  y = static_cast<uint16_t>(data[3] | (static_cast<uint16_t>(data[4]) << 8));
+  y = static_cast<common::types::UInt16>(data[3] | (static_cast<common::types::UInt16>(data[4]) << 8));
 
   writeRegister(GT911_STATUS, 0);
 
   return true;
 }
 
-void ESP32Touch::ch422gWrite(const uint8_t reg, const uint8_t value)
+void ESP32Touch::ch422gWrite(const common::types::UInt8 reg, const common::types::UInt8 value)
 {
-  const uint8_t data[] = {reg, value};
+  const common::types::UInt8 data[] = {reg, value};
 
   ESP_ERROR_CHECK(i2c_master_transmit(m_ch422g, data, sizeof(data), 100));
 }
 
-void ESP32Touch::ch422gOutput(const uint8_t pin, const bool value)
+void ESP32Touch::ch422gOutput(const common::types::UInt8 pin, const bool value)
 {
   if (value) {
-    m_ch422gOutput |= static_cast<uint8_t>(1U << pin);
+    m_ch422gOutput |= static_cast<common::types::UInt8>(1U << pin);
   } else {
-    m_ch422gOutput &= static_cast<uint8_t>(~(1U << pin));
+    m_ch422gOutput &= static_cast<common::types::UInt8>(~(1U << pin));
   }
 
   ch422gWrite(ESP32DisplayConfig::ch422gOutputRegister, m_ch422gOutput);
 }
 
-void ESP32Touch::writeRegister(const uint16_t reg, const uint8_t value)
+void ESP32Touch::writeRegister(const common::types::UInt16 reg, const common::types::UInt8 value)
 {
-  const uint8_t address[] = {
-    static_cast<uint8_t>(reg >> 8),
-    static_cast<uint8_t>(reg & 0xFF),
+  const common::types::UInt8 address[] = {
+    static_cast<common::types::UInt8>(reg >> 8),
+    static_cast<common::types::UInt8>(reg & 0xFF),
   };
 
-  const uint8_t data[] = {
+  const common::types::UInt8 data[] = {
     address[0],
     address[1],
     value,
@@ -223,12 +216,17 @@ void ESP32Touch::writeRegister(const uint16_t reg, const uint8_t value)
   ESP_ERROR_CHECK(i2c_master_transmit(m_gt911, data, sizeof(data), 100));
 }
 
-bool ESP32Touch::readRegisters(const uint16_t reg, uint8_t* data, const size_t size) noexcept
+bool ESP32Touch::readRegisters(const common::types::UInt16 reg, common::types::UInt8* data, const size_t size) noexcept
 {
-  const uint8_t address[] = {
-    static_cast<uint8_t>(reg >> 8),
-    static_cast<uint8_t>(reg & 0xFF),
+  const common::types::UInt8 address[] = {
+    static_cast<common::types::UInt8>(reg >> 8),
+    static_cast<common::types::UInt8>(reg & 0xFF),
   };
 
   return i2c_master_transmit_receive(m_gt911, address, sizeof(address), data, size, 100) == ESP_OK;
+}
+
+void ESP32Touch::setBacklight(bool value)
+{
+  ch422gOutput(ESP32DisplayConfig::backlightIo, value);
 }

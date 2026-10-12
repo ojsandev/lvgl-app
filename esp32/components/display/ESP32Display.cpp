@@ -21,9 +21,9 @@ ESP32Display::ESP32Display()
   : m_display(lv::Display::create(esp32::ESP32DisplayConfig::width, esp32::ESP32DisplayConfig::height))
 {
   initPanel();
+  initTouch();
   initBacklight();
   initLVGL();
-  initTouch();
   initTick();
 }
 
@@ -36,7 +36,7 @@ void ESP32Display::initTouch()
 
 void ESP32Display::initTick()
 {
-  const esp_timer_create_args_t timerConfig{
+  constexpr esp_timer_create_args_t timerConfig{
     .callback = &ESP32Display::tickCallback,
     .arg = nullptr,
     .dispatch_method = ESP_TIMER_TASK,
@@ -57,7 +57,7 @@ void ESP32Display::tickCallback(void* arg)
 
 void ESP32Display::flushCallback(lv_display_t* display, const lv_area_t* area, uint8_t* pxMap)
 {
-  auto* self = static_cast<ESP32Display*>(lv_display_get_user_data(display));
+  const auto* self = static_cast<ESP32Display*>(lv_display_get_user_data(display));
 
   if (self == nullptr || self->m_panel == nullptr) {
     lv_display_flush_ready(display);
@@ -73,9 +73,7 @@ void ESP32Display::flushCallback(lv_display_t* display, const lv_area_t* area, u
   }
 }
 
-void ESP32Display::touchCallback(
-    lv_indev_t* indev,
-    lv_indev_data_t* data)
+void ESP32Display::touchCallback(lv_indev_t* indev, lv_indev_data_t* data)
 {
   auto* touch = static_cast<esp32::ESP32Touch*>(
     lv_indev_get_user_data(indev)
@@ -183,11 +181,11 @@ void ESP32Display::initPanel()
 
 void ESP32Display::initLVGL()
 {
-  const size_t bufferSize = esp32::ESP32DisplayConfig::width * LVGL_DRAW_BUFFER_LINES * sizeof(lv_color16_t);
+  constexpr size_t bufferSize = esp32::ESP32DisplayConfig::width * LVGL_DRAW_BUFFER_LINES * sizeof(lv_color16_t);
 
-  void* buffer1 = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  const auto buffer1 = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
 
-  void* buffer2 = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  const auto buffer2 = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
 
   assert(buffer1 != nullptr);
   assert(buffer2 != nullptr);
@@ -210,7 +208,7 @@ void ESP32Display::initLVGL()
 
   lv_indev_set_read_cb(indev, &ESP32Display::touchCallback);
 
-  const esp_lcd_rgb_panel_event_callbacks_t callbacks{.on_color_trans_done = &ESP32Display::colorTransDoneCallback};
+  constexpr esp_lcd_rgb_panel_event_callbacks_t callbacks{.on_color_trans_done = &ESP32Display::colorTransDoneCallback};
 
   ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(m_panel, &callbacks, m_display.get()));
 }
@@ -220,15 +218,11 @@ const lv::Display& ESP32Display::lvgl() const noexcept
   return m_display;
 }
 
-bool ESP32Display::colorTransDoneCallback(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t* eventData,
+bool ESP32Display::colorTransDoneCallback(esp_lcd_panel_handle_t _, const esp_lcd_rgb_panel_event_data_t* __,
                                           void* userData)
 {
-  (void)panel;
-  (void)eventData;
 
-  auto* display = static_cast<lv_display_t*>(userData);
-
-  if (display != nullptr) {
+  if (auto* display = static_cast<lv_display_t*>(userData); display != nullptr) {
     lv_display_flush_ready(display);
   }
 
@@ -237,16 +231,6 @@ bool ESP32Display::colorTransDoneCallback(esp_lcd_panel_handle_t panel, const es
 
 void ESP32Display::initBacklight()
 {
-  using Config = esp32::ESP32DisplayConfig;
-
-  const uint8_t mode[] = {Config::ch422gModeRegister, 0xFF};
-
-  const uint8_t output[] = {Config::ch422gOutputRegister, static_cast<uint8_t>(1U << Config::backlightIo)};
-
-  /*
-   * The CH422G is initialized by ESP32Touch because
-   * the same I2C bus is required by GT911.
-   *
-   * Backlight control is therefore performed there.
-   */
+  m_touch.setBacklight(true);
+  ESP_LOGI(TAG, "Display backlight enabled");
 }

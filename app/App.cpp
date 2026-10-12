@@ -66,6 +66,7 @@ int SDLCALL App::onWindowEvent(void* userdata, SDL_Event* event)
   }
 
   if (event->type == SDL_MOUSEWHEEL) {
+    // Invert the mouse wheel direction
     event->wheel.y = -event->wheel.y;
   }
 
