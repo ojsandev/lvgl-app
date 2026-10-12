@@ -49,15 +49,3 @@ jobs:
       - name: Build firmware
         working-directory: esp32
         run: idf.py build
-
-      - name: Upload firmware artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: esp32s3-firmware-${{ github.sha }}
-          path: |
-            esp32/build/*.bin
-            esp32/build/bootloader/bootloader.bin
-            esp32/build/partition_table/partition-table.bin
-            esp32/build/flasher_args.json
-          if-no-files-found: error
-          retention-days: 14

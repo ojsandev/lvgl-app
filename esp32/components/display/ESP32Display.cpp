@@ -84,8 +84,8 @@ void ESP32Display::touchCallback(lv_indev_t* indev, lv_indev_data_t* data)
     return;
   }
 
-  uint16_t x = 0;
-  uint16_t y = 0;
+  common::types::UInt16 x = 0;
+  common::types::UInt16 y = 0;
 
   if (touch->read(x, y)) {
     data->point.x = static_cast<int32_t>(x);
