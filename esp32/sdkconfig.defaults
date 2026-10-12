@@ -1,0 +1,2 @@
+# Enable C++ exception handling for application code using try/catch.
+CONFIG_COMPILER_CXX_EXCEPTIONS=y
