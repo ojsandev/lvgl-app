@@ -6,7 +6,20 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 APP_NAME="my-lvgl-app"
-CONAN_PROFILE=".conan/profiles/macos-clang26"
+
+case "$(uname -s)" in
+    Darwin)
+        DEFAULT_CONAN_PROFILE=".conan/profiles/macos-clang26"
+        ;;
+    Linux)
+        DEFAULT_CONAN_PROFILE=".conan/profiles/linux-gcc"
+        ;;
+    *)
+        DEFAULT_CONAN_PROFILE=""
+        ;;
+esac
+
+CONAN_PROFILE="${CONAN_PROFILE:-$DEFAULT_CONAN_PROFILE}"
 
 log() {
     printf '\n==> %s\n' "$1"
@@ -41,6 +54,7 @@ check_files() {
     log "Checking project files"
 
     [[ -f lv_conf.h ]] || die "lv_conf.h not found"
+    [[ -n "$CONAN_PROFILE" ]] || die "Unsupported host OS: $(uname -s)"
     [[ -f "$CONAN_PROFILE" ]] || die "Conan profile not found: $CONAN_PROFILE"
 }
 
@@ -86,6 +100,17 @@ run_app() {
     }
 
     "./$build_dir/$APP_NAME"
+}
+
+test_debug() {
+    check_tools
+    check_files
+
+    [[ -f build/debug/conan_toolchain.cmake ]] || die "Debug dependencies are not configured; run '$0 setup' first"
+
+    log "Building and running deterministic desktop tests"
+    cmake --build --preset debug
+    ctest --test-dir build/debug --output-on-failure -LE network
 }
 
 clean() {
@@ -147,6 +172,7 @@ Usage:
   $0 setup
   $0 build
   $0 run
+  $0 test
 
   $0 release
   $0 run-release
@@ -171,6 +197,10 @@ main() {
 
         run)
             run_app "debug"
+            ;;
+
+        test)
+            test_debug
             ;;
 
         release)

@@ -7,7 +7,7 @@
 #include "data/mapper/CharacterMapper.h"
 #include "domain/model/CharactersResponse.h"
 #include "domain/model/error/Error.h"
-#include "infra/http/exception/HttpException.h"
+#include "data/http/HttpException.h"
 #include "mapper/ErrorMapper.h"
 
 using namespace data::repository;
@@ -23,7 +23,7 @@ CharacterRepository::getCharactersPaginated(const common::types::Int32 limit, co
   try {
     const auto json = m_demonSlayerDataSource->getCharacters(limit, page);
     return mapper::CharacterMapper::fromJson(json);
-  } catch (infra::http::exception::HttpException& exception) {
+  } catch (const data::http::HttpException& exception) {
     LOG_ERROR("Error occurred while fetching characters: {}", exception.what());
 
     return mapper::ErrorMapper::map(exception.what(), exception.statusCode());

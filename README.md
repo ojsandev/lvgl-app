@@ -4,6 +4,8 @@ Application built with **C++**, **LVGL 9.5**, **CMake**, **Conan** and **Ninja**
 
 The desktop application uses CMake presets and a Bash build script. The embedded firmware lives in `esp32/` and is built with Espressif's `idf.py` tooling.
 
+The desktop and ESP-IDF projects use different toolchains. Open them as separate project roots in CLion, VS Code, Zed and clangd.
+
 ---
 
 ## Requirements
@@ -318,6 +320,8 @@ Using the presets keeps the build configuration consistent between developers an
 
 ## ESP32-S3 Firmware
 
+The authoritative firmware onboarding guide is [`esp32/README.md`](esp32/README.md). It covers ESP-IDF activation, build, flash, monitor, board defaults, module composition and IDE use.
+
 The repository also contains an ESP-IDF firmware target in `esp32/` for the **Waveshare ESP32-S3-Touch-LCD-7B** board (ESP32-S3, 16 MB flash and 8 MB PSRAM).
 
 ### Firmware stack
@@ -367,6 +371,14 @@ idf.py reconfigure
 idf.py build
 ```
 
+The repository wrapper provides the same reproducible flow from the repository root:
+
+```bash
+scripts/esp.sh doctor
+scripts/esp.sh configure
+scripts/esp.sh build
+```
+
 The first configuration downloads/resolves the components declared in `main/idf_component.yml`. The resolved versions are recorded in `dependencies.lock`.
 
 To configure options interactively:
@@ -402,10 +414,9 @@ esp32/
 │   ├── CMakeLists.txt
 │   ├── idf_component.yml
 │   ├── main.cpp
-│   └── ESP32TestUseCases.h
+│   └── components/demo_usecases/
 └── components/
-    ├── app_ui/   # Reuses UI code from app/ui
-    ├── common/   # Shared logger implementation
+     ├── demo_usecases/ # Demonstration data adapters
     ├── display/  # ESP32 display and touch drivers
     └── lv_cpp/   # C++ LVGL wrapper component
 ```
@@ -414,7 +425,7 @@ Generated files such as `esp32/build/`, `esp32/managed_components/`, `esp32/.dep
 
 ### Current status
 
-The ESP-IDF target has been **built successfully**. The current `esp32/main/ESP32TestUseCases.h` provides fake/test character data (Tanjiro and Nezuko) for exercising the UI; it is not yet the production data/API integration. Flash the board and run the serial monitor to validate the firmware on the physical device.
+The ESP-IDF target has been **built successfully**. The current `esp32/components/demo_usecases/` component provides demonstration character data (Tanjiro and Nezuko) for exercising the UI; it is not yet the production data/API integration. Flash the board and run the serial monitor to validate the firmware on the physical device.
 
 ---
 
@@ -425,7 +436,7 @@ The project uses `.clang-format` for C/C++ source formatting.
 To format an individual file:
 
 ```bash
-clang-format -i --style=file:.clang-format src/main.cpp
+clang-format -i --style=file:.clang-format app/main.cpp
 ```
 
 To format the entire project:
@@ -449,6 +460,7 @@ cd my-lvgl-app
 
 scripts/dev.sh doctor
 scripts/dev.sh setup
+scripts/dev.sh test
 scripts/dev.sh run
 ```
 
@@ -475,12 +487,16 @@ scripts/dev.sh run
 | `scripts/dev.sh setup`           | Configure and build Debug            |
 | `scripts/dev.sh build`           | Build Debug                          |
 | `scripts/dev.sh run`             | Build if necessary and run Debug     |
+| `scripts/dev.sh test`            | Run deterministic desktop tests      |
 | `scripts/dev.sh release`         | Configure and build Release          |
 | `scripts/dev.sh run-release`     | Build if necessary and run Release   |
 | `scripts/dev.sh rebuild`         | Clean and rebuild Debug              |
 | `scripts/dev.sh rebuild-release` | Clean and rebuild Release            |
 | `scripts/dev.sh clean`           | Remove all build artifacts           |
 | `scripts/dev.sh doctor`          | Diagnose the development environment |
+| `scripts/esp.sh doctor`          | Validate active ESP-IDF 5.5.5        |
+| `scripts/esp.sh configure`       | Configure the ESP32-S3 target        |
+| `scripts/esp.sh build`           | Build ESP32-S3 firmware              |
 
 ---
 
@@ -594,7 +610,7 @@ Source Code
    Clang
      │
      ▼
- my-lvl-app
+  my-lvgl-app
 ```
 
 The build script provides a single entry point for the most common development operations while CMake presets maintain the actual build configuration.
@@ -609,5 +625,3 @@ This project is licensed under the **GNU General Public License v3.0** - see the
 * **Commercial use, modification, and distribution** are allowed.
 * **Source code disclosure** is mandatory if you distribute modified versions.
 * **Same license**: Any derivatives or modifications must be released under the GPLv3 license as well.
-
-

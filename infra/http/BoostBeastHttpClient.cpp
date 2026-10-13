@@ -14,8 +14,8 @@
 #include <type_traits>
 
 #include "common/logger/Logging.h"
-#include "exception/HttpException.h"
-#include "tls/CertificateStoreFactory.h"
+#include "data/http/HttpException.h"
+#include "infra/tls/CertificateStoreFactory.h"
 
 using namespace infra::http;
 
@@ -163,11 +163,11 @@ auto BoostBeastHttpClient::requestImpl(const Method method, const std::string_vi
   stream.shutdown(error);
 
   if (error != std::errc::not_connected && error != boost::asio::ssl::error::stream_truncated && error) {
-    throw exception::HttpException{ "Failed to shutdown SSL stream: " + error.message() };
+    throw data::http::HttpException{ "Failed to shutdown SSL stream: " + error.message() };
   }
 
   if (const auto statusCode = httpResponse.result_int(); statusCode < 200 || statusCode >= 300) {
-    throw exception::HttpException{ httpResponse.reason(), static_cast<common::types::Int16>(statusCode) };
+    throw data::http::HttpException{ httpResponse.reason(), static_cast<common::types::Int16>(statusCode) };
   }
 
   return std::move(httpResponse.body());

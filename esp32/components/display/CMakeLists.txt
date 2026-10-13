@@ -5,10 +5,9 @@ idf_component_register(
 
   INCLUDE_DIRS
   "."
-  "${PROJECT_DIR}/../infra"
-  "${PROJECT_DIR}/.."
 
   REQUIRES
+  app
   lv_cpp
   lvgl__lvgl
   esp_lcd

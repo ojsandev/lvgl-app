@@ -1,4 +1,4 @@
 [tools]
-cmake = "latest"
-ninja = "latest"
-conan = "latest"
+cmake = "4.4.3"
+ninja = "1.13.2"
+conan = "2.32.0"

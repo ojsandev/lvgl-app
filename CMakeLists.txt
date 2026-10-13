@@ -6,6 +6,8 @@ project(
         LANGUAGES C CXX
 )
 
+include(CTest)
+
 # =========================================================
 # Language
 # =========================================================
@@ -21,6 +23,16 @@ else ()
 endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Headers currently use repository-relative include paths (for example
+# "domain/model/Character.h"). Keep that policy explicit rather than leaking
+# it through the common library.
+add_library(project_headers INTERFACE)
+target_include_directories(
+        project_headers
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
 
 # =========================================================
 # LVGL configuration
@@ -133,6 +145,7 @@ add_subdirectory(domain)
 add_subdirectory(data)
 add_subdirectory(infra)
 add_subdirectory(app)
+add_subdirectory(platform/sdl)
 add_subdirectory(tests)
 
 # =========================================================
@@ -142,17 +155,13 @@ add_subdirectory(tests)
 add_executable(
         my-lvgl-app
         app/main.cpp
-        app/App.cpp
-        app/App.h
 )
 
 target_link_libraries(
         my-lvgl-app
         PRIVATE
-        app
-        data
+        sdl_runtime
         infra
-        lv::lv
         kangaru
 )
 
