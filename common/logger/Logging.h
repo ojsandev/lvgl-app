@@ -6,7 +6,7 @@ namespace common::logger {
 
 inline std::string formatFunctionName(std::string_view prettyFunction)
 {
-  std::string function{prettyFunction};
+  std::string function{ prettyFunction };
 
   const auto parenthesis = function.find('(');
 

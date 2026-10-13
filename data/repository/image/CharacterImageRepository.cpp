@@ -11,7 +11,8 @@ using namespace data::repository;
 
 CharacterImageRepository::CharacterImageRepository(
     const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource)
-  : m_demonSlayerDataSource(demonSlayerDataSource) {}
+  : m_demonSlayerDataSource(demonSlayerDataSource)
+{}
 
 domain::repository::ICharacterImageRepository::StoreImageResult
 CharacterImageRepository::storeImage(common::types::Int32 characterId, const std::string& imagePath)
@@ -24,16 +25,12 @@ CharacterImageRepository::storeImage(common::types::Int32 characterId, const std
     file.write(reinterpret_cast<const std::ostream::char_type*>(binImage.data()),
                static_cast<std::streamsize>(binImage.size()));
 
-    return domain::model::IOResult{
-      .type = domain::model::IOResultType::Success,
-      .message = "Character image stored successfully"
-    };
+    return domain::model::IOResult{ .type = domain::model::IOResultType::Success,
+                                    .message = "Character image stored successfully" };
   } catch (std::exception& e) {
     LOG_ERROR("Error occurred while storing character image for characterId: {}. {}", characterId, e.what());
-    return domain::model::IOResult{
-      .type = domain::model::IOResultType::Failure,
-      .message = "Failed to store character image"
-    };
+    return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
+                                    .message = "Failed to store character image" };
   }
 }
 
@@ -46,20 +43,16 @@ CharacterImageRepository::getThumbnail(const common::types::Int32 characterId)
     std::ifstream file(storedPath, std::ios::binary);
 
     if (!file) {
-      return domain::model::IOResult{
-        .type = domain::model::IOResultType::Failure,
-        .message = "Failed to open character thumbnail"
-      };
+      return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
+                                      .message = "Failed to open character thumbnail" };
     }
 
     return StoredImage(std::istreambuf_iterator(file), std::istreambuf_iterator<char>());
   } catch (const std::exception& e) {
     LOG_ERROR("Error occurred while retrieving character thumbnail for characterId: {}. {}", characterId, e.what());
 
-    return domain::model::IOResult{
-      .type = domain::model::IOResultType::Failure,
-      .message = "Failed to retrieve character thumbnail"
-    };
+    return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
+                                    .message = "Failed to retrieve character thumbnail" };
   }
 }
 
@@ -72,20 +65,16 @@ CharacterImageRepository::getImage(const common::types::Int32 characterId)
     std::ifstream file(storedPath, std::ios::binary);
 
     if (!file) {
-      return domain::model::IOResult{
-        .type = domain::model::IOResultType::Failure,
-        .message = "Failed to open character image"
-      };
+      return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
+                                      .message = "Failed to open character image" };
     }
 
     return StoredImage(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
   } catch (const std::exception& e) {
     LOG_ERROR("Error occurred while retrieving character image for characterId: {}. {}", characterId, e.what());
 
-    return domain::model::IOResult{
-      .type = domain::model::IOResultType::Failure,
-      .message = "Failed to retrieve character image"
-    };
+    return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
+                                    .message = "Failed to retrieve character image" };
   }
 }
 
