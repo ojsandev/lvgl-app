@@ -182,6 +182,15 @@ bool ESP32Touch::read(common::types::UInt16& x, common::types::UInt16& y) noexce
   return true;
 }
 
+/**
+ * @brief Writes a value to a CH422G register.
+ *
+ * Sends the register address and the value in a single I2C
+ * transaction. Communication errors are handled by ESP_ERROR_CHECK().
+ *
+ * @param reg The 8-bit CH422G register address.
+ * @param value The 8-bit value to write.
+ */
 void ESP32Touch::ch422gWrite(const common::types::UInt8 reg, const common::types::UInt8 value)
 {
   const common::types::UInt8 data[] = {reg, value};
@@ -189,6 +198,15 @@ void ESP32Touch::ch422gWrite(const common::types::UInt8 reg, const common::types
   ESP_ERROR_CHECK(i2c_master_transmit(m_ch422g, data, sizeof(data), 100));
 }
 
+/**
+ * @brief Sets the logical state of a CH422G output.
+ *
+ * Updates the corresponding bit in m_ch422gOutput and writes
+ * the updated byte to the CH422G output register.
+ *
+ * @param pin The bit index corresponding to the output.
+ * @param value true to set the output high; false to set it low.
+ */
 void ESP32Touch::ch422gOutput(const common::types::UInt8 pin, const bool value)
 {
   if (value) {
@@ -199,6 +217,17 @@ void ESP32Touch::ch422gOutput(const common::types::UInt8 pin, const bool value)
 
   ch422gWrite(ESP32DisplayConfig::ch422gOutputRegister, m_ch422gOutput);
 }
+
+/**
+ * @brief Writes a byte to a GT911 register.
+ *
+ * The 16-bit register address is sent most-significant byte
+ * first, followed by the least-significant byte and the value.
+ * Communication errors are handled by ESP_ERROR_CHECK().
+ *
+ * @param reg The 16-bit GT911 register address.
+ * @param value The 8-bit value to write.
+ */
 
 void ESP32Touch::writeRegister(const common::types::UInt16 reg, const common::types::UInt8 value)
 {
@@ -216,6 +245,20 @@ void ESP32Touch::writeRegister(const common::types::UInt16 reg, const common::ty
   ESP_ERROR_CHECK(i2c_master_transmit(m_gt911, data, sizeof(data), 100));
 }
 
+/**
+ * @brief Reads consecutive bytes from the GT911 starting at a register.
+ *
+ * Sends the register address and receives the requested data
+ * into the provided buffer. This method does not propagate
+ * C++ exceptions.
+ *
+ * @param reg The 16-bit address of the first GT911 register to read.
+ * @param data Pointer to a destination buffer with capacity for
+ *             at least size bytes.
+ * @param size The number of bytes to read.
+ *
+ * @return true if the I2C transaction succeeds; false otherwise.
+ */
 bool ESP32Touch::readRegisters(const common::types::UInt16 reg, common::types::UInt8* data, const size_t size) noexcept
 {
   const common::types::UInt8 address[] = {
@@ -226,7 +269,14 @@ bool ESP32Touch::readRegisters(const common::types::UInt16 reg, common::types::U
   return i2c_master_transmit_receive(m_gt911, address, sizeof(address), data, size, 100) == ESP_OK;
 }
 
-void ESP32Touch::setBacklight(bool value)
+/**
+ * @brief Sets the backlight state of the display.
+ *
+ * Uses the CH422G to control the backlight output pin.
+ *
+ * @param value true to turn on the backlight; false to turn it off.
+ */
+void ESP32Touch::setBacklight(const bool value)
 {
   ch422gOutput(ESP32DisplayConfig::backlightIo, value);
 }

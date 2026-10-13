@@ -31,11 +31,8 @@ private:
   void initGT911();
 
   void ch422gWrite(common::types::UInt8 reg, common::types::UInt8 value);
-
   void ch422gOutput(common::types::UInt8 pin, bool value);
-
   void writeRegister(common::types::UInt16 reg, common::types::UInt8 value);
-
   bool readRegisters(common::types::UInt16 reg, common::types::UInt8* data, size_t size) noexcept;
 
 private:
