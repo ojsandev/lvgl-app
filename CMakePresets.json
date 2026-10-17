@@ -64,5 +64,26 @@
       "configurePreset": "release-windows",
       "configuration": "Release"
     }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug-no-network",
+      "configurePreset": "debug",
+      "filter": {
+        "exclude": {
+          "label": "network"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    }
   ]
 }

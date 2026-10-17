@@ -5,9 +5,7 @@ target_sources(
         PRIVATE
         http/BoostBeastHttpClient.cpp
         tls/CertificateStoreFactory.cpp
-        http/exception/HttpException.cpp
         image/ImageResizer.cpp
-        display/sdl/SDLDisplay.cpp
 )
 
 if(APPLE)
@@ -47,28 +45,17 @@ if(UNIX AND NOT APPLE)
   )
 endif()
 
-if(TARGET SDL2::SDL2 AND TARGET lv::lv)
-  target_link_libraries(
-          infra
-          PUBLIC
-          SDL2::SDL2
-          lv::lv
-  )
-endif()
-
-target_include_directories(
-        infra
-        PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 target_link_libraries(
         infra
         PUBLIC
         data
+        project_headers
+        PRIVATE
         Boost::boost
         Boost::url
         openssl::openssl
         avir::avir
         libwebp::libwebp
 )
+
+add_library(my_lvgl::infra ALIAS infra)

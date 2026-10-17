@@ -1,6 +1,9 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
@@ -14,7 +17,14 @@ on:
       - 'cmake/**'
       - 'conanfile.*'
       - 'lv_conf.h'
-      - 'src/**'
+      - 'app/**'
+      - 'common/**'
+      - 'data/**'
+      - 'domain/**'
+      - 'infra/**'
+      - 'platform/**'
+      - 'scripts/dev.sh'
+      - '.conan/profiles/**'
       - 'tests/**'
       - 'third_party/**'
 
@@ -122,25 +132,23 @@ jobs:
             cmake --preset debug
           fi
 
-      - name: Build TLS test
+      - name: Build desktop targets
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             cmake --build build/debug \
               --config Debug \
-              --target tls-test \
               -j 4
           else
             cmake --build build/debug \
-              --target tls-test \
               -j 4
           fi
 
-      - name: Run TLS test
+      - name: Run deterministic tests
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            ./build/debug/tests/Debug/tls-test.exe
+            ctest --test-dir build/debug --output-on-failure -LE network -C Debug
           else
-            ./build/debug/tests/tls-test
+            ctest --test-dir build/debug --output-on-failure -LE network
           fi

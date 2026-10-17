@@ -7,7 +7,7 @@
 
 using namespace app::ui;
 
-MainView::MainView(infra::display::IDisplay& display, MainViewModel& viewModel)
+MainView::MainView(display::IDisplay& display, MainViewModel& viewModel)
   : m_viewModel(viewModel)
   , m_display(display)
   , m_screen(m_display.lvgl().screen_active())

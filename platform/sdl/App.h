@@ -1,10 +1,9 @@
-
 #pragma once
 
 #include <SDL_events.h>
 #include <memory>
 
-#include "infra/display/sdl/SDLDisplay.h"
+#include "platform/sdl/SDLDisplay.h"
 #include "lv/core/app.hpp"
 
 namespace app::ui {
@@ -27,7 +26,6 @@ public:
 
   App(const App&) = delete;
   App& operator=(const App&) = delete;
-
   App(App&&) = delete;
   App& operator=(App&&) = delete;
 
@@ -36,16 +34,12 @@ public:
 
 private:
   void processEvents();
-
   static int SDLCALL onWindowEvent(void* userdata, SDL_Event* event);
 
-private:
   InitGuard m_initGuard;
   Config m_config;
   bool m_isRunning;
-
   app::ui::MainViewModel& m_viewModel;
-
   infra::display::SDLDisplay m_display;
   std::unique_ptr<app::ui::MainView> m_view;
 };

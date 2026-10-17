@@ -7,7 +7,8 @@ idf_component_register(
 
         REQUIRES
         display
-        app_ui
+        app
+        demo_usecases
         lv_cpp
         lvgl__lvgl
 )

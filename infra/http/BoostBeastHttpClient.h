@@ -1,6 +1,6 @@
 #pragma once
 
-#include "http/IHttpClient.h"
+#include "data/http/IHttpClient.h"
 
 namespace infra::http {
 

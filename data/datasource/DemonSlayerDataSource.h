@@ -4,7 +4,7 @@
 #include <string>
 
 #include "common/types.h"
-#include "http/IHttpClient.h"
+#include "data/http/IHttpClient.h"
 
 namespace data::http {
 class IHttpClient;

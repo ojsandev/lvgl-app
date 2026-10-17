@@ -4,7 +4,7 @@
 #include <string>
 
 #include "common/logger/Logging.h"
-#include "http/BoostBeastHttpClient.h"
+#include "infra/http/BoostBeastHttpClient.h"
 
 using namespace infra::http;
 

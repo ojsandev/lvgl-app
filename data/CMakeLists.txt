@@ -4,6 +4,7 @@ target_sources(
         data
         PRIVATE
         datasource/DemonSlayerDataSource.cpp
+        http/HttpException.cpp
         mapper/CharacterMapper.cpp
         mapper/ErrorMapper.cpp
         repository/CharacterRepository.cpp
@@ -23,3 +24,5 @@ target_link_libraries(
         common
         Boost::json
 )
+
+add_library(my_lvgl::data ALIAS data)

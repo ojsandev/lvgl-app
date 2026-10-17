@@ -1,5 +1,4 @@
-
-#include "SDLDisplay.h"
+#include "platform/sdl/SDLDisplay.h"
 
 #include <SDL_video.h>
 
@@ -27,29 +26,23 @@ SDL_Window* SDLDisplay::nativeWindow() const noexcept
 
 void SDLDisplay::raise() const noexcept
 {
-  if (m_window == nullptr) {
-    return;
+  if (m_window != nullptr) {
+    SDL_RaiseWindow(m_window);
   }
-
-  SDL_RaiseWindow(m_window);
 }
 
 void SDLDisplay::resizable(const bool enabled) const noexcept
 {
-  if (m_window == nullptr) {
-    return;
+  if (m_window != nullptr) {
+    SDL_SetWindowResizable(m_window, enabled ? SDL_TRUE : SDL_FALSE);
   }
-
-  SDL_SetWindowResizable(m_window, enabled ? SDL_TRUE : SDL_FALSE);
 }
 
 void SDLDisplay::minimumSize(const common::types::Int32 width, const common::types::Int32 height) const noexcept
 {
-  if (m_window == nullptr) {
-    return;
+  if (m_window != nullptr) {
+    SDL_SetWindowMinimumSize(m_window, width, height);
   }
-
-  SDL_SetWindowMinimumSize(m_window, width, height);
 }
 
 void SDLDisplay::addEventWatch(const EventCallback callback, void* userdata)

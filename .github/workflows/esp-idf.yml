@@ -1,16 +1,18 @@
 name: ESP-IDF Firmware
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
     paths:
       - 'esp32/**'
-      - 'app/ui/**'
-      - 'app/utils/**'
+      - 'app/**'
       - 'common/**'
       - 'domain/**'
-      - 'infra/display/**'
+      - 'platform/**'
       - 'lv_conf.h'
       - '.github/workflows/esp-idf.yml'
   workflow_dispatch:
@@ -39,3 +41,13 @@ jobs:
       - name: Build firmware
         working-directory: esp32
         run: idf.py build
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32s3-firmware
+          path: |
+            esp32/build/my-lvgl-esp32.bin
+            esp32/build/my-lvgl-esp32.elf
+            esp32/build/bootloader/bootloader.bin
+            esp32/build/partition_table/partition-table.bin

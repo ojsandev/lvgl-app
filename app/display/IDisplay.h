@@ -1,10 +1,9 @@
-
 #pragma once
 
 #include "common/types.h"
 #include "lv/core/display.hpp"
 
-namespace infra::display {
+namespace app::display {
 
 class IDisplay {
 public:
@@ -32,4 +31,4 @@ protected:
   IDisplay() = default;
 };
 
-} // namespace infra::display
+} // namespace app::display
