@@ -147,4 +147,8 @@ jobs:
       - name: Run deterministic tests
         shell: bash
         run: |
-          ctest --test-dir build/debug --output-on-failure -LE network
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ctest --test-dir build/debug --output-on-failure -LE network -C Debug
+          else
+            ctest --test-dir build/debug --output-on-failure -LE network
+          fi
