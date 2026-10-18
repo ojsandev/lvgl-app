@@ -1,9 +1,10 @@
 #pragma once
 
+#include <string>
 #include <variant>
 #include <vector>
-#include <future>
 
+#include "common/async/Task.h"
 #include "domain/model/IOResult.h"
 
 namespace domain::repository {
@@ -11,7 +12,8 @@ namespace domain::repository {
 class ICharacterImageRepository {
 public:
   using StoredImage = std::vector<char>;
-  using StoreImageResult = std::future<std::variant<model::IOResult, StoredImage>>;
+  using StoreImageValue = std::variant<model::IOResult, StoredImage>;
+  using StoreImageResult = common::async::Task<StoreImageValue>;
   using GetImageResult = std::variant<model::IOResult, StoredImage>;
 
   virtual ~ICharacterImageRepository() = default;
