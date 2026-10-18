@@ -7,8 +7,15 @@
 #include "domain/model/Character.h"
 
 namespace app::ui {
+enum class MainViewUIStateType {
+  Loading,
+  Data,
+  Error,
+};
+
 struct MainViewUIData
 {
+  MainViewUIStateType state;
   std::string title;
   std::vector<domain::model::CharacterWithPath> characters;
 
@@ -29,6 +36,8 @@ public:
 
   static MainViewUIData data(const std::string& title, const std::vector<domain::model::CharacterWithPath>& characters,
                              common::types::UInt64 currentPage, common::types::UInt64 totalPages);
+
+  static MainViewUIData loadingState();
 
   static MainViewUIData errorState();
 };

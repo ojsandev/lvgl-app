@@ -2,16 +2,16 @@
 
 #include <cstdint>
 #include <esp_lcd_panel_ops.h>
-#include <esp_timer.h>
 #include <esp_lcd_panel_rgb.h>
+#include <esp_timer.h>
+
 #include "ESP32Touch.h"
 #include "app/display/IDisplay.h"
 #include "lv/core/display.hpp"
 
 namespace infra::display {
 
-class ESP32Display final : public app::display::IDisplay
-{
+class ESP32Display final : public app::display::IDisplay {
 public:
   ESP32Display();
 

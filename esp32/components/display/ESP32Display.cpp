@@ -5,6 +5,7 @@
 #include <esp_heap_caps.h>
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
+
 #include "ESP32DisplayConfig.h"
 
 using namespace infra::display;
@@ -64,8 +65,8 @@ void ESP32Display::flushCallback(lv_display_t* display, const lv_area_t* area, u
     return;
   }
 
-  const esp_err_t result = esp_lcd_panel_draw_bitmap(self->m_panel, area->x1, area->y1, area->x2 + 1, area->y2 + 1,
-                                                     pxMap);
+  const esp_err_t result =
+      esp_lcd_panel_draw_bitmap(self->m_panel, area->x1, area->y1, area->x2 + 1, area->y2 + 1, pxMap);
 
   if (result != ESP_OK) {
     ESP_LOGE(TAG, "Failed to flush display: %s", esp_err_to_name(result));
@@ -75,9 +76,7 @@ void ESP32Display::flushCallback(lv_display_t* display, const lv_area_t* area, u
 
 void ESP32Display::touchCallback(lv_indev_t* indev, lv_indev_data_t* data)
 {
-  auto* touch = static_cast<esp32::ESP32Touch*>(
-    lv_indev_get_user_data(indev)
-  );
+  auto* touch = static_cast<esp32::ESP32Touch*>(lv_indev_get_user_data(indev));
 
   if (touch == nullptr) {
     data->state = LV_INDEV_STATE_RELEASED;
@@ -191,8 +190,8 @@ void ESP32Display::initLVGL()
   assert(buffer2 != nullptr);
 
   m_display.color_format(LV_COLOR_FORMAT_RGB565)
-           .buffers(buffer1, buffer2, bufferSize, LV_DISPLAY_RENDER_MODE_PARTIAL)
-           .flush_cb(&ESP32Display::flushCallback);
+      .buffers(buffer1, buffer2, bufferSize, LV_DISPLAY_RENDER_MODE_PARTIAL)
+      .flush_cb(&ESP32Display::flushCallback);
 
   lv_display_set_user_data(m_display.get(), this);
 
@@ -208,7 +207,8 @@ void ESP32Display::initLVGL()
 
   lv_indev_set_read_cb(indev, &ESP32Display::touchCallback);
 
-  constexpr esp_lcd_rgb_panel_event_callbacks_t callbacks{.on_color_trans_done = &ESP32Display::colorTransDoneCallback};
+  constexpr esp_lcd_rgb_panel_event_callbacks_t callbacks{ .on_color_trans_done =
+                                                               &ESP32Display::colorTransDoneCallback };
 
   ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(m_panel, &callbacks, m_display.get()));
 }

@@ -3,8 +3,8 @@
 #include <SDL_events.h>
 #include <memory>
 
-#include "platform/sdl/SDLDisplay.h"
 #include "lv/core/app.hpp"
+#include "platform/sdl/SDLDisplay.h"
 
 namespace app::ui {
 class MainView;

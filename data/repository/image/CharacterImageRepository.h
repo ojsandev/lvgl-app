@@ -11,9 +11,9 @@ class DemonSlayerDataSource;
 }
 
 namespace data::repository {
-class CharacterImageRepository : public domain::repository::ICharacterImageRepository {
+class CharacterImageRepository final : public domain::repository::ICharacterImageRepository {
 public:
-  CharacterImageRepository(const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource);
+  explicit CharacterImageRepository(const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource);
   ~CharacterImageRepository() override = default;
 
   StoreImageResult storeImage(common::types::Int32 characterId, const std::string& imagePath) override;

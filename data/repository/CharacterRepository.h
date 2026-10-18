@@ -1,16 +1,17 @@
 #pragma once
 
 #include <memory>
-#include <variant>
 
 #include "domain/repository/ICharacterRepository.h"
+#include "http/AsyncHttpResult.h"
 
 namespace data::datasource {
 class DemonSlayerDataSource;
 }
 
 namespace data::repository {
-class CharacterRepository final : public domain::repository::ICharacterRepository {
+class CharacterRepository final
+  : public domain::repository::ICharacterRepository {
 public:
   explicit CharacterRepository(const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource);
   ~CharacterRepository() override = default;

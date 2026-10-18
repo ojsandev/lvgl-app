@@ -1,10 +1,8 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "IGetCharactersUseCase.h"
-#include "domain/model/Pagination.h"
 
 namespace domain::repository {
 class IImageResizerRepository;
@@ -13,6 +11,9 @@ class ICharacterImageRepository;
 } // namespace domain::repository
 
 namespace domain::usecase {
+
+struct GetCharactersUseCaseState;
+
 class GetCharactersUseCase final : public IGetCharactersUseCase {
 public:
   explicit GetCharactersUseCase(const std::shared_ptr<repository::ICharacterRepository>& characterRepository,
@@ -21,21 +22,19 @@ public:
 
   ~GetCharactersUseCase() override = default;
 
-  model::CharacterView execute(common::types::Int32 limit, common::types::Int32 page) override;
-
-  model::CharacterView nextPage() override;
-  model::CharacterView previousPage() override;
+  Result execute(common::types::Int32 limit, common::types::Int32 page) override;
+  Result nextPage() override;
+  Result previousPage() override;
 
 private:
-  std::shared_ptr<repository::ICharacterRepository> m_characterRepository;
-  std::shared_ptr<repository::ICharacterImageRepository> m_characterImageRepository;
-  std::shared_ptr<repository::IImageResizerRepository> m_imageResizerRepository;
+  static common::types::Int32 toCharacterId(const model::CharacterInfo& info);
+  static common::async::Task<model::CharacterWithPath>
+  processCharacter(const std::shared_ptr<GetCharactersUseCaseState>& state, model::Character character);
+  static common::async::Task<model::CharacterView>
+  executeRequest(const std::shared_ptr<GetCharactersUseCaseState>& state, common::types::Int32 limit,
+                 common::types::Int32 page);
 
-  common::types::Int32 m_currentPage;
-  common::types::Int32 m_TotalPages;
-  common::types::Int32 m_TotalElements;
-  common::types::Int32 m_currentLimit;
-
-  model::Pagination m_pagination;
+  std::shared_ptr<GetCharactersUseCaseState> m_state;
 };
+
 } // namespace domain::usecase

@@ -149,7 +149,7 @@ bool infra::image::ImageResizer::createThumbnail(const std::string& inputPath, c
   int decodedWidth = 0;
   int decodedHeight = 0;
 
-  WebPDataPtr decoded(WebPDecodeRGBA(encoded.data(), encoded.size(), &decodedWidth, &decodedHeight));
+  const WebPDataPtr decoded(WebPDecodeRGBA(encoded.data(), encoded.size(), &decodedWidth, &decodedHeight));
 
   if (!decoded) {
     return false;

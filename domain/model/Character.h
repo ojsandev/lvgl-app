@@ -10,7 +10,7 @@
 namespace domain::model {
 struct CharacterInfo
 {
-  common::types::Int32 id;
+  common::types::Int64 id;
   std::string name;
   std::optional<common::types::Int32> age;
   std::string gender;

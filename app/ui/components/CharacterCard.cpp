@@ -40,20 +40,20 @@ CharacterCard::CharacterCard(const lv::ObjectView parent, const domain::model::C
 
 void CharacterCard::init(const domain::model::CharacterWithPath& character)
 {
-  auto root = lv::hbox(m_card)
-                  .name("CharacterCard")
-                  .width_pct(100)
-                  .height(150)
-                  .padding(12)
-                  .gap(16)
-                  .radius(16)
-                  .bg_color(theme::surface())
-                  .border_width(1)
-                  .border_color(theme::border())
-                  .border_opa(LV_OPA_COVER)
-                  .shadow_width(12)
-                  .shadow_opa(LV_OPA_20)
-                  .shadow_color(lv_color_black());
+  const auto root = lv::hbox(m_card)
+                        .name("CharacterCard")
+                        .width_pct(100)
+                        .height(150)
+                        .padding(12)
+                        .gap(16)
+                        .radius(16)
+                        .bg_color(theme::surface())
+                        .border_width(1)
+                        .border_color(theme::border())
+                        .border_opa(LV_OPA_COVER)
+                        .shadow_width(12)
+                        .shadow_opa(LV_OPA_20)
+                        .shadow_color(lv_color_black());
 
   m_imagePath = toLvglPath(character.thumbnailPath);
 
@@ -67,9 +67,15 @@ void CharacterCard::init(const domain::model::CharacterWithPath& character)
 
   m_nameLabel = lv::Label::create(info).text(character.info.name.c_str()).text_color(theme::text());
 
-  m_infoLabel = lv::Label::create(info)
-                    .text_fmt("Age: %d  •  Gender: %s", character.info.age, character.info.gender.c_str())
-                    .text_color(theme::textSecondary());
+  if (character.info.age == std::nullopt) {
+    m_infoLabel = lv::Label::create(info)
+                      .text_fmt("Gender: %s", character.info.gender.c_str())
+                      .text_color(theme::textSecondary());
+  } else {
+    m_infoLabel = lv::Label::create(info)
+                      .text_fmt("Age: %d  •  Gender: %s", character.info.age, character.info.gender.c_str())
+                      .text_color(theme::textSecondary());
+  }
 
   m_descriptionLabel = lv::Label::create(info)
                            .text(character.info.description.c_str())
@@ -79,10 +85,4 @@ void CharacterCard::init(const domain::model::CharacterWithPath& character)
                            .long_mode(LV_LABEL_LONG_MODE_DOTS);
 
   utils::enableEventBubble(root);
-
-  root.on_hover_over([](const lv::Event e) {
-    const auto targetName = e.current_target().get_name();
-    const auto currentTargetName = e.target().get_name();
-    LOG_DEBUG("Hover OVER | target={} | current={}", targetName, currentTargetName);
-  });
 }

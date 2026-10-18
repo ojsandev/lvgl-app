@@ -1,5 +1,7 @@
 #include "MainView.h"
 
+#include <lvgl.h>
+
 #include "MainViewModel.h"
 #include "common/logger/Logging.h"
 #include "lv/layout/flex.hpp"
@@ -13,6 +15,14 @@ MainView::MainView(display::IDisplay& display, MainViewModel& viewModel)
   , m_screen(m_display.lvgl().screen_active())
 {
   init();
+}
+
+MainView::~MainView()
+{
+  if (m_pollTimer != nullptr) {
+    lv_timer_delete(m_pollTimer);
+    m_pollTimer = nullptr;
+  }
 }
 
 void MainView::init()
@@ -42,7 +52,7 @@ void MainView::init()
   m_previousButton.add_style(m_styles.secondaryButton().get())
       .add_style(m_styles.disabledButton().get(), LV_STATE_DISABLED);
 
-  m_pageLabel = lv::Label::create(pagination).text("Page 0 / 0");
+  m_pageLabel = lv::Label::create(pagination).text("Loading characters...");
   m_pageLabel.add_style(m_styles.secondaryText().get());
 
   m_nextButton = lv::Button::create(pagination).text("Next").on_click<&MainView::onNextPage>(this);
@@ -50,54 +60,68 @@ void MainView::init()
       .add_style(m_styles.primaryButtonPressed().get(), LV_STATE_PRESSED)
       .add_style(m_styles.disabledButton().get(), LV_STATE_DISABLED);
 
-  const auto uiData = m_viewModel.update();
+  m_pollTimer = lv_timer_create(&MainView::onPollTimer, 30, this);
+  if (m_pollTimer == nullptr) {
+    LOG_ERROR("Failed to create LVGL task polling timer");
+  }
 
-  render(uiData);
+  showLoading();
+  m_viewModel.update();
 }
 
 void MainView::render(const MainViewUIData& uiData)
 {
-  if (uiData.hasError) {
-    m_pageLabel.text("Unable to load characters");
 
-    m_previousButton.enabled(false);
-    m_nextButton.enabled(false);
-
-    m_characterList->setCharacters({});
-
+  if (uiData.state == MainViewUIStateType::Loading) {
+    showLoading();
     return;
   }
 
-  m_pageLabel.text_fmt("Page %llu / %llu", uiData.currentPage, uiData.totalPages);
+  if (uiData.hasError) {
+    m_pageLabel.text("Unable to load characters");
+    m_previousButton.enabled(false);
+    m_nextButton.enabled(false);
+    m_characterList->setCharacters({});
+    return;
+  }
 
+  m_titleLabel.text(uiData.title);
+  m_pageLabel.text_fmt("Page %llu / %llu", uiData.currentPage, uiData.totalPages);
   m_previousButton.enabled(uiData.hasPreviousPage);
   m_nextButton.enabled(uiData.hasNextPage);
   m_characterList->setCharacters(uiData.characters);
 }
 
+void MainView::showLoading()
+{
+  m_pageLabel.text("Loading characters...");
+  m_previousButton.enabled(false);
+  m_nextButton.enabled(false);
+}
+
+void MainView::onPollTimer(lv_timer_t* timer)
+{
+  auto* self = static_cast<MainView*>(lv_timer_get_user_data(timer));
+  if (self == nullptr) {
+    return;
+  }
+
+  if (const auto result = self->m_viewModel.poll()) {
+    self->render(*result);
+  }
+}
+
 void MainView::onClick(lv::Event)
 {
-  const auto uiData = m_viewModel.update();
-
-  render(uiData);
-
-  LOG_INFO("page={}/{}", uiData.currentPage, uiData.totalPages);
+  m_viewModel.update();
 }
 
 void MainView::onNextPage(lv::Event)
 {
-  const auto uiData = m_viewModel.nextPage();
-
-  render(uiData);
-
-  LOG_INFO("page={}/{}", uiData.currentPage, uiData.totalPages);
+  m_viewModel.nextPage();
 }
 
 void MainView::onPreviousPage(lv::Event)
 {
-  const auto uiData = m_viewModel.previousPage();
-
-  render(uiData);
-
-  LOG_INFO("page={}/{}", uiData.currentPage, uiData.totalPages);
+  m_viewModel.previousPage();
 }
