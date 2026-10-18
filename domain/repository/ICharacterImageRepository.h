@@ -2,6 +2,7 @@
 
 #include <variant>
 #include <vector>
+#include <future>
 
 #include "domain/model/IOResult.h"
 
@@ -10,7 +11,7 @@ namespace domain::repository {
 class ICharacterImageRepository {
 public:
   using StoredImage = std::vector<char>;
-  using StoreImageResult = std::variant<model::IOResult, StoredImage>;
+  using StoreImageResult = std::future<std::variant<model::IOResult, StoredImage>>;
   using GetImageResult = std::variant<model::IOResult, StoredImage>;
 
   virtual ~ICharacterImageRepository() = default;

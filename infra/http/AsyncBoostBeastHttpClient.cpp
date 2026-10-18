@@ -7,83 +7,13 @@
 #include <functional>
 #include <mutex>
 #include <stdexcept>
-#include <thread>
 #include <utility>
 #include <vector>
 
-#include "common/logger/Logging.h"
 #include "infra/http/BoostBeastHttpClient.h"
+#include "infra/http/WorkerPool.h"
 
 using namespace infra::http;
-
-class AsyncBoostBeastHttpClient::WorkerPool {
-public:
-  explicit WorkerPool(std::size_t workerCount)
-  {
-    workerCount = std::max<std::size_t>(1, workerCount);
-    m_workers.reserve(workerCount);
-    for (std::size_t i = 0; i < workerCount; ++i) {
-      m_workers.emplace_back([this] { run(); });
-    }
-  }
-
-  ~WorkerPool()
-  {
-    {
-      std::lock_guard lock(m_mutex);
-      m_stopping = true;
-    }
-    m_condition.notify_all();
-    for (auto& worker : m_workers) {
-      if (worker.joinable()) {
-        worker.join();
-      }
-    }
-  }
-
-  void submit(std::function<void()> task)
-  {
-    {
-      std::lock_guard lock(m_mutex);
-      if (m_stopping) {
-        throw std::runtime_error("Async HTTP client is shutting down");
-      }
-      m_tasks.emplace_back(std::move(task));
-    }
-    m_condition.notify_one();
-  }
-
-private:
-  void run()
-  {
-    while (true) {
-      std::function<void()> task;
-      {
-        std::unique_lock lock(m_mutex);
-        m_condition.wait(lock, [this] { return m_stopping || !m_tasks.empty(); });
-        if (m_stopping && m_tasks.empty()) {
-          return;
-        }
-        task = std::move(m_tasks.front());
-        m_tasks.pop_front();
-      }
-
-      try {
-        task();
-      } catch (const std::exception& error) {
-        LOG_ERROR("Unhandled exception in async HTTP worker: {}", error.what());
-      } catch (...) {
-        LOG_ERROR("Unhandled non-standard exception in async HTTP worker");
-      }
-    }
-  }
-
-  std::mutex m_mutex;
-  std::condition_variable m_condition;
-  std::deque<std::function<void()>> m_tasks;
-  std::vector<std::thread> m_workers;
-  bool m_stopping = false;
-};
 
 AsyncBoostBeastHttpClient::AsyncBoostBeastHttpClient(const std::size_t workerCount)
   : m_workers(std::make_unique<WorkerPool>(workerCount))

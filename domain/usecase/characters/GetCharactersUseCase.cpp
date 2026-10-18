@@ -2,6 +2,7 @@
 
 #include <map>
 #include <print>
+#include <chrono>
 
 #include "common/logger/Logging.h"
 #include "domain/exception/characters/CharacterInvalidArgsException.h"
@@ -18,14 +19,13 @@ GetCharactersUseCase::GetCharactersUseCase(
     const std::shared_ptr<repository::ICharacterImageRepository>& characterImageRepository,
     const std::shared_ptr<repository::IImageResizerRepository>& imageResizerRepository)
   : m_characterRepository(characterRepository)
-  , m_characterImageRepository(characterImageRepository)
-  , m_imageResizerRepository(imageResizerRepository)
-  , m_currentPage(0)
-  , m_TotalPages(0)
-  , m_TotalElements(0)
-  , m_currentLimit(0)
-  , m_pagination()
-{}
+    , m_characterImageRepository(characterImageRepository)
+    , m_imageResizerRepository(imageResizerRepository)
+    , m_currentPage(0)
+    , m_TotalPages(0)
+    , m_TotalElements(0)
+    , m_currentLimit(0)
+    , m_pagination() {}
 
 domain::model::CharacterView GetCharactersUseCase::execute(const common::types::Int32 limit,
                                                            const common::types::Int32 page)
@@ -45,7 +45,7 @@ domain::model::CharacterView GetCharactersUseCase::execute(const common::types::
 
   LOG_INFO("page={}, limit={}", m_currentPage, m_currentLimit);
 
-  const auto variant = m_characterRepository->getCharactersPaginated(m_currentLimit, m_currentPage);
+  const auto variant = m_characterRepository->getCharactersPaginated(m_currentLimit, m_currentPage).get();
 
   if (std::holds_alternative<model::CharactersResponse>(variant)) {
     const auto& [characters, pagination] = std::get<model::CharactersResponse>(variant);
@@ -64,11 +64,11 @@ domain::model::CharacterView GetCharactersUseCase::execute(const common::types::
 
       if (!m_characterImageRepository->imageExists(info.id)) {
 
-        if (const auto storeResult = m_characterImageRepository->storeImage(info.id, imagePath);
-            !std::holds_alternative<model::IOResult>(storeResult)) {
+        if (const auto storeResult = m_characterImageRepository->storeImage(info.id, imagePath).get();
+          !std::holds_alternative<model::IOResult>(storeResult)) {
           LOG_ERROR("Failed to store image for characterId {}", info.id);
 
-          convertedCharacters.push_back({ .info = info, .imagePath = "", .thumbnailPath = "" });
+          convertedCharacters.push_back({.info = info, .imagePath = "", .thumbnailPath = ""});
 
           continue;
         }
@@ -79,16 +79,16 @@ domain::model::CharacterView GetCharactersUseCase::execute(const common::types::
 
           LOG_ERROR("Failed to create thumbnail for characterId {}", info.id);
 
-          convertedCharacters.push_back({ .info = info, .imagePath = imagePath, .thumbnailPath = "" });
+          convertedCharacters.push_back({.info = info, .imagePath = imagePath, .thumbnailPath = ""});
 
           continue;
         }
       }
 
-      convertedCharacters.push_back({ .info = info, .imagePath = imagePath, .thumbnailPath = thumbnailPath });
+      convertedCharacters.push_back({.info = info, .imagePath = imagePath, .thumbnailPath = thumbnailPath});
     }
 
-    return { .characters = convertedCharacters, .pagination = m_pagination };
+    return {.characters = convertedCharacters, .pagination = m_pagination};
   }
 
   if (const auto& [reason, code] = std::get<model::error::Error>(variant); reason == model::error::Reason::NotFound) {

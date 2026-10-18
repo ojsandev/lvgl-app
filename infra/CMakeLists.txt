@@ -5,6 +5,7 @@ target_sources(
         PRIVATE
         http/BoostBeastHttpClient.cpp
         http/AsyncBoostBeastHttpClient.cpp
+        http/WorkerPool.cpp
         tls/CertificateStoreFactory.cpp
         image/ImageResizer.cpp
 )

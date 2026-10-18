@@ -8,8 +8,10 @@
 #include "data/http/IAsyncHttpClient.h"
 
 namespace infra::http {
+class WorkerPool;
 
-class AsyncBoostBeastHttpClient final : public data::http::IAsyncHttpClient {
+class AsyncBoostBeastHttpClient final : public data::http::IAsyncHttpClient
+{
 public:
   explicit AsyncBoostBeastHttpClient(std::size_t workerCount = 2);
   ~AsyncBoostBeastHttpClient() override;
@@ -31,7 +33,7 @@ public:
 
 private:
   enum class Method { Get, Post, Put, Patch, Delete };
-  class WorkerPool;
+
   std::unique_ptr<WorkerPool> m_workers;
 
   void requestString(Method method, std::string url, std::string body, std::string contentType,

@@ -19,6 +19,13 @@ if(BUILD_TESTING)
   )
   target_link_libraries(http-exception-test PRIVATE data)
   add_test(NAME http-exception-test COMMAND http-exception-test)
+
+  add_executable(
+          async-repository-future-test
+          core/AsyncRepositoryFutureTest.cpp
+  )
+  target_link_libraries(async-repository-future-test PRIVATE data)
+  add_test(NAME async-repository-future-test COMMAND async-repository-future-test)
 endif()
 
 if (MSVC)

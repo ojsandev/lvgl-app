@@ -2,8 +2,11 @@
 
 #include <functional>
 #include <string_view>
+#include "AsyncHttpResult.h"
 
-#include "data/http/AsyncHttpResult.h"
+namespace data::http {
+
+}
 
 namespace data::http {
 
@@ -25,6 +28,6 @@ public:
                           std::string_view contentType = "application/json") = 0;
   virtual void deleteAsync(std::string_view url, StringCompletion completion) = 0;
   virtual void getBytesAsync(std::string_view url, BytesCompletion completion) = 0;
-}
+};
 
 } // namespace data::http

@@ -1,14 +1,16 @@
 #pragma once
 
+#include <future>
 #include <variant>
 
 #include "domain/model/CharactersResponse.h"
 #include "domain/model/error/Error.h"
 
 namespace domain::repository {
-class ICharacterRepository {
+class ICharacterRepository
+{
 public:
-  using GetCharactersResult = std::variant<model::CharactersResponse, model::error::Error>;
+  using GetCharactersResult =  std::future<std::variant<model::CharactersResponse, model::error::Error>>;
 
   virtual ~ICharacterRepository() = default;
 
