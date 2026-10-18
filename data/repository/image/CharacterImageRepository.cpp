@@ -23,7 +23,7 @@ domain::repository::ICharacterImageRepository::StoreImageResult CharacterImageRe
 
   try {
     m_demonSlayerDataSource->getCharacterImage(
-        characterId, [completion, imagePath](http::AsyncHttpBytesResult result) mutable {
+        characterId, [completion, imagePath](const http::AsyncHttpBytesResult& result) mutable {
           try {
             if (!result.hasValue()) {
               result.rethrowError();

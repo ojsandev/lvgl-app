@@ -22,7 +22,8 @@ GetCharactersUseCase::GetCharactersUseCase(
     const std::shared_ptr<repository::IImageResizerRepository>& imageResizerRepository)
   : m_characterRepository(characterRepository)
     , m_characterImageRepository(characterImageRepository)
-    , m_imageResizerRepository(imageResizerRepository) {}
+    , m_imageResizerRepository(imageResizerRepository)
+    , m_pagination({}) {}
 
 IGetCharactersUseCase::Result GetCharactersUseCase::execute(const common::types::Int32 limit,
                                                             const common::types::Int32 page)
