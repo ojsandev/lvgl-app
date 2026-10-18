@@ -133,22 +133,6 @@ public:
     return *m_state->value;
   }
 
-  static Task ready(T value)
-  {
-    TaskCompletionSource<T> source;
-    auto task = source.task();
-    source.set_value(std::move(value));
-    return task;
-  }
-
-  static Task failed(std::exception_ptr exception)
-  {
-    TaskCompletionSource<T> source;
-    auto task = source.task();
-    source.set_exception(std::move(exception));
-    return task;
-  }
-
 #if COMMON_ASYNC_HAS_COROUTINES
   struct Awaiter {
     std::shared_ptr<detail::TaskState<T>> state;
@@ -223,9 +207,6 @@ private:
   std::shared_ptr<detail::TaskState<T>> m_state;
 
   friend class TaskCompletionSource<T>;
-#if COMMON_ASYNC_HAS_COROUTINES
-  friend struct promise_type;
-#endif
 };
 
 template <typename T>
