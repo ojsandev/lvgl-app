@@ -1,66 +1,77 @@
 #include "CharacterImageRepository.h"
 
-#include <boost/beast/core/file.hpp>
+#include <exception>
 #include <filesystem>
 #include <fstream>
-#include <future>
+#include <iterator>
+
+#include "common/async/Task.h"
 #include "common/logger/Logging.h"
-#include "datasource/DemonSlayerDataSource.h"
+#include "data/datasource/DemonSlayerDataSource.h"
 
 using namespace data::repository;
 
 CharacterImageRepository::CharacterImageRepository(
-    const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource)
+  const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource)
   : m_demonSlayerDataSource(demonSlayerDataSource)
 {}
 
 domain::repository::ICharacterImageRepository::StoreImageResult
-CharacterImageRepository::storeImage(common::types::Int32 characterId, const std::string& imagePath)
+CharacterImageRepository::storeImage(
+  const common::types::Int32 characterId,
+  const std::string& imagePath)
 {
-  auto promise = std::make_shared<std::promise<std::variant<domain::model::IOResult, StoredImage>>>();
-  auto future = promise->get_future();
+  using Result = domain::repository::ICharacterImageRepository::StoreImageValue;
+  common::async::TaskCompletionSource<Result> completion;
+  auto task = completion.task();
 
   try {
-    m_demonSlayerDataSource->getCharacterImage(characterId, [promise, imagePath](const http::AsyncHttpBytesResult& result) mutable {
-      try {
-        if (!result.hasValue()) {
-          result.rethrowError();
+    m_demonSlayerDataSource->getCharacterImage(
+      characterId,
+      [completion, imagePath](http::AsyncHttpBytesResult result) mutable {
+        try {
+          if (!result.hasValue()) {
+            result.rethrowError();
+          }
+
+          const auto& imageData = result.value();
+          LOG_INFO("Character image received: {} bytes", imageData.size());
+
+          std::ofstream file(imagePath, std::ios::binary);
+          if (!file) {
+            completion.set_value(domain::model::IOResult{
+              .type = domain::model::IOResultType::Failure,
+              .message = "Failed to open image output file"
+            });
+            return;
+          }
+
+          file.write(
+            reinterpret_cast<const char*>(imageData.data()),
+            static_cast<std::streamsize>(imageData.size()));
+
+          if (!file) {
+            completion.set_value(domain::model::IOResult{
+              .type = domain::model::IOResultType::Failure,
+              .message = "Failed to write image output file"
+            });
+            return;
+          }
+
+          completion.set_value(domain::model::IOResult{
+            .type = domain::model::IOResultType::Success,
+            .message = "Character image stored successfully"
+          });
+        } catch (...) {
+          completion.set_exception(std::current_exception());
         }
-
-        const auto& imageData = result.value();
-
-        LOG_INFO("Character image received: {} bytes", imageData.size());
-
-        std::ofstream file(imagePath, std::ios::binary);
-
-        file.write(reinterpret_cast<const std::ostream::char_type*>(imageData.data()), static_cast<std::streamsize>(imageData.size()));
-
-        auto value = domain::model::IOResult {
-          .type = domain::model::IOResultType::Success,
-          .message = "Character image stored successfully"
-        };
-
-        promise->set_value(value);
-
-      } catch (const std::exception& e) {
-        LOG_ERROR("Error fetching character image: {}", e.what());
-        promise->set_exception(std::current_exception());
-      } catch (...) {
-        promise->set_exception(std::current_exception());
-      }
-    });
-  } catch (std::exception& e) {
-    LOG_ERROR("Error occurred while storing character image for characterId: {}. {}", characterId, e.what());
-    const auto ioResult = domain::model::IOResult {
-      .type = domain::model::IOResultType::Failure,
-      .message = "Failed to store character image"
-    };
-    promise->set_value(ioResult);
-  }  catch (...) {
-    promise->set_exception(std::current_exception());
+      });
+  } catch (...) {
+    LOG_ERROR("Failed to start image request for characterId {}", characterId);
+    completion.set_exception(std::current_exception());
   }
 
-  return future;
+  return task;
 }
 
 domain::repository::ICharacterImageRepository::GetImageResult
@@ -68,20 +79,20 @@ CharacterImageRepository::getThumbnail(const common::types::Int32 characterId)
 {
   try {
     const auto storedPath = getThumbnailPath(characterId);
-
     std::ifstream file(storedPath, std::ios::binary);
-
     if (!file) {
-      return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
-                                      .message = "Failed to open character thumbnail" };
+      return domain::model::IOResult{
+        .type = domain::model::IOResultType::Failure,
+        .message = "Failed to open character thumbnail"
+      };
     }
-
-    return StoredImage(std::istreambuf_iterator(file), std::istreambuf_iterator<char>());
+    return StoredImage(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
   } catch (const std::exception& e) {
-    LOG_ERROR("Error occurred while retrieving character thumbnail for characterId: {}. {}", characterId, e.what());
-
-    return domain::model::IOResult{ .type = domain::model::IOResultType::Failure,
-                                    .message = "Failed to retrieve character thumbnail" };
+    LOG_ERROR("Error retrieving thumbnail for characterId {}: {}", characterId, e.what());
+    return domain::model::IOResult{
+      .type = domain::model::IOResultType::Failure,
+      .message = "Failed to retrieve character thumbnail"
+    };
   }
 }
 
@@ -90,20 +101,16 @@ CharacterImageRepository::getImage(const common::types::Int32 characterId)
 {
   try {
     const auto storedPath = getImagePath(characterId);
-
     std::ifstream file(storedPath, std::ios::binary);
-
     if (!file) {
-      return domain::model::IOResult {
+      return domain::model::IOResult{
         .type = domain::model::IOResultType::Failure,
         .message = "Failed to open character image"
       };
     }
-
     return StoredImage(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
   } catch (const std::exception& e) {
-    LOG_ERROR("Error occurred while retrieving character image for characterId: {}. {}", characterId, e.what());
-
+    LOG_ERROR("Error retrieving image for characterId {}: {}", characterId, e.what());
     return domain::model::IOResult{
       .type = domain::model::IOResultType::Failure,
       .message = "Failed to retrieve character image"
