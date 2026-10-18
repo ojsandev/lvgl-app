@@ -10,8 +10,7 @@
 namespace infra::http {
 class WorkerPool;
 
-class AsyncBoostBeastHttpClient final : public data::http::IAsyncHttpClient
-{
+class AsyncBoostBeastHttpClient final : public data::http::IAsyncHttpClient {
 public:
   explicit AsyncBoostBeastHttpClient(std::size_t workerCount = 2);
   ~AsyncBoostBeastHttpClient() override;

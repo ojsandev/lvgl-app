@@ -17,12 +17,30 @@ namespace {
 
 class StubHttpClient final : public data::http::IHttpClient {
 public:
-  std::string get(std::string_view) override { return {}; }
-  std::string post(std::string_view, std::string_view, std::string_view) override { return {}; }
-  std::string put(std::string_view, std::string_view, std::string_view) override { return {}; }
-  std::string patch(std::string_view, std::string_view, std::string_view) override { return {}; }
-  std::string delete_(std::string_view) override { return {}; }
-  std::vector<common::types::UInt8> getBytes(std::string_view) override { return {}; }
+  std::string get(std::string_view) override
+  {
+    return {};
+  }
+  std::string post(std::string_view, std::string_view, std::string_view) override
+  {
+    return {};
+  }
+  std::string put(std::string_view, std::string_view, std::string_view) override
+  {
+    return {};
+  }
+  std::string patch(std::string_view, std::string_view, std::string_view) override
+  {
+    return {};
+  }
+  std::string delete_(std::string_view) override
+  {
+    return {};
+  }
+  std::vector<common::types::UInt8> getBytes(std::string_view) override
+  {
+    return {};
+  }
 };
 
 class DeferredAsyncHttpClient final : public data::http::IAsyncHttpClient {
@@ -93,7 +111,7 @@ bool characterRepositoryTaskStaysPendingUntilCompletion()
   }
 
   asyncHttpClient->stringCompletion(data::http::AsyncHttpStringResult::success(
-    R"({"content":[{"id":1,"name":"Tanjiro","age":16,"gender":"Male","race":"Human","description":"Demon Slayer","img":"https://example.com/tanjiro.webp"}],"pagination":{"totalElements":1,"elementsOnPage":1,"currentPage":1,"totalPages":1}})"));
+      R"({"content":[{"id":1,"name":"Tanjiro","age":16,"gender":"Male","race":"Human","description":"Demon Slayer","img":"https://example.com/tanjiro.webp"}],"pagination":{"totalElements":1,"elementsOnPage":1,"currentPage":1,"totalPages":1}})"));
 
   if (!task.isReady() || task.hasError()) {
     return false;
@@ -124,7 +142,7 @@ bool imageRepositoryTaskStaysPendingUntilCompletion()
     return false;
   }
 
-  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({0x52, 0x49, 0x46, 0x46}));
+  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({ 0x52, 0x49, 0x46, 0x46 }));
 
   const auto fileExists = std::filesystem::exists(imagePath);
   std::filesystem::remove(imagePath);

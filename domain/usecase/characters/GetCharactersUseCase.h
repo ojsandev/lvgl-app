@@ -9,16 +9,15 @@ namespace domain::repository {
 class IImageResizerRepository;
 class ICharacterRepository;
 class ICharacterImageRepository;
-}
+} // namespace domain::repository
 
 namespace domain::usecase {
 
 class GetCharactersUseCase final : public IGetCharactersUseCase {
 public:
-  explicit GetCharactersUseCase(
-    const std::shared_ptr<repository::ICharacterRepository>& characterRepository,
-    const std::shared_ptr<repository::ICharacterImageRepository>& characterImageRepository,
-    const std::shared_ptr<repository::IImageResizerRepository>& imageResizerRepository);
+  explicit GetCharactersUseCase(const std::shared_ptr<repository::ICharacterRepository>& characterRepository,
+                                const std::shared_ptr<repository::ICharacterImageRepository>& characterImageRepository,
+                                const std::shared_ptr<repository::IImageResizerRepository>& imageResizerRepository);
 
   ~GetCharactersUseCase() override = default;
 
@@ -27,6 +26,8 @@ public:
   Result previousPage() override;
 
 private:
+  common::async::Task<model::CharacterWithPath> processCharacter(const model::Character& character);
+
   std::shared_ptr<repository::ICharacterRepository> m_characterRepository;
   std::shared_ptr<repository::ICharacterImageRepository> m_characterImageRepository;
   std::shared_ptr<repository::IImageResizerRepository> m_imageResizerRepository;

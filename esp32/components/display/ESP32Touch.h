@@ -1,12 +1,12 @@
 #pragma once
 
 #include <driver/i2c_master.h>
+
 #include "common/types.h"
 
 namespace infra::display::esp32 {
 
-class ESP32Touch
-{
+class ESP32Touch {
 public:
   ESP32Touch() = default;
   ~ESP32Touch();

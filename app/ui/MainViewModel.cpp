@@ -11,9 +11,8 @@
 
 using namespace app::ui;
 
-MainViewModel::MainViewModel(
-  const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
-  const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase)
+MainViewModel::MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
+                             const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase)
   : m_updateTitleUseCase(updateTitleUseCase)
   , m_getCharactersUseCase(getCharactersUseCase)
 {}
@@ -83,29 +82,20 @@ std::optional<MainViewUIData> MainViewModel::poll()
     return result;
   }
 
-  if (!m_currentTask || !m_currentTask->isReady()) {
+  if (!m_currentTask) {
     return std::nullopt;
   }
 
-  auto task = *m_currentTask;
+  if (!m_currentTask->isReady()) {
+    return MainViewUIState::loadingState();
+  }
+
+  const auto task = *m_currentTask;
   m_currentTask.reset();
 
   try {
     const auto& [characters, pagination] = task.result();
-    return MainViewUIState::data(
-      m_title,
-      characters,
-      pagination.currentPage,
-      pagination.totalPages);
-  } catch (const domain::exception::CharacterNotFoundException& error) {
-    LOG_ERROR("Character request failed: {}", error.what());
-    return MainViewUIState::errorState();
-  } catch (const domain::exception::CharactersOutOfBoundsException& error) {
-    LOG_ERROR("Pagination failed: {}", error.what());
-    return MainViewUIState::errorState();
-  } catch (const std::exception& error) {
-    LOG_ERROR("Character task failed: {}", error.what());
-    return MainViewUIState::errorState();
+    return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
   } catch (...) {
     LOG_ERROR("Character task failed with unknown error");
     return MainViewUIState::errorState();

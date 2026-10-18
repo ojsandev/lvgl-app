@@ -15,9 +15,7 @@ public:
 
   virtual ~ICharacterRepository() = default;
 
-  virtual GetCharactersResult getCharactersPaginated(
-    common::types::Int32 limit,
-    common::types::Int32 page) = 0;
+  virtual GetCharactersResult getCharactersPaginated(common::types::Int32 limit, common::types::Int32 page) = 0;
 };
 
 } // namespace domain::repository

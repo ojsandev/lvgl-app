@@ -9,9 +9,7 @@ WorkerPool::WorkerPool(const std::size_t workerCount)
   const std::size_t actualWorkerCount = std::max<std::size_t>(1, workerCount);
   m_workers.reserve(actualWorkerCount);
   for (std::size_t i = 0; i < actualWorkerCount; ++i) {
-    m_workers.emplace_back([this] {
-      run();
-    });
+    m_workers.emplace_back([this] { run(); });
   }
 }
 
@@ -35,9 +33,7 @@ void WorkerPool::run()
     std::function<void()> task;
     {
       std::unique_lock lock(m_mutex);
-      m_condition.wait(lock, [this] {
-        return m_stopping || !m_tasks.empty();
-      });
+      m_condition.wait(lock, [this] { return m_stopping || !m_tasks.empty(); });
       if (m_stopping && m_tasks.empty()) {
         return;
       }

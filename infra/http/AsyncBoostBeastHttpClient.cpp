@@ -73,8 +73,8 @@ void AsyncBoostBeastHttpClient::requestString(const Method method, std::string u
     throw std::invalid_argument("Async HTTP request requires a completion callback");
   }
 
-  m_workers->submit([method, url = std::move(url), body = std::move(body),
-                     contentType = std::move(contentType), completion = std::move(completion)]() mutable {
+  m_workers->submit([method, url = std::move(url), body = std::move(body), contentType = std::move(contentType),
+                     completion = std::move(completion)]() mutable {
     try {
       BoostBeastHttpClient client;
       std::string response;

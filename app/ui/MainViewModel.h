@@ -11,7 +11,7 @@
 namespace domain::usecase {
 class IUpdateTitleUseCase;
 class IGetCharactersUseCase;
-}
+} // namespace domain::usecase
 
 namespace app::ui {
 
@@ -19,9 +19,8 @@ class MainViewModel {
 public:
   using CharactersTask = common::async::Task<domain::model::CharacterView>;
 
-  explicit MainViewModel(
-    const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
-    const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase);
+  explicit MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
+                         const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase);
 
   void update();
   void nextPage();

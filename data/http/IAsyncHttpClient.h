@@ -2,11 +2,10 @@
 
 #include <functional>
 #include <string_view>
+
 #include "AsyncHttpResult.h"
 
-namespace data::http {
-
-}
+namespace data::http {}
 
 namespace data::http {
 

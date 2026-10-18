@@ -32,11 +32,26 @@ MainViewUIData MainViewUIState::data(const std::string& title,
                                      const std::vector<domain::model::CharacterWithPath>& characters,
                                      const common::types::UInt64 currentPage, const common::types::UInt64 totalPages)
 {
-  return MainViewUIData{ .title = title,
+  return MainViewUIData{ .state = MainViewUIStateType::Data,
+                         .title = title,
                          .characters = characters,
                          .currentPage = currentPage,
                          .totalPages = totalPages,
                          .hasPreviousPage = currentPage > 1,
                          .hasNextPage = currentPage < totalPages,
                          .hasError = false };
+}
+
+MainViewUIData MainViewUIState::loadingState()
+{
+  return MainViewUIData{
+    .state = MainViewUIStateType::Loading,
+    .title = "",
+    .characters = std::vector<domain::model::CharacterWithPath>{},
+    .currentPage = 0,
+    .totalPages = 0,
+    .hasPreviousPage = false,
+    .hasNextPage = false,
+    .hasError = false,
+  };
 }

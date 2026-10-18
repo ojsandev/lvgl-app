@@ -1,11 +1,11 @@
 #pragma once
-#include <cstddef>
-#include <mutex>
 #include <condition_variable>
+#include <cstddef>
 #include <deque>
-#include <vector>
-#include <thread>
 #include <functional>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 namespace infra::http {
 
@@ -25,6 +25,5 @@ private:
   std::deque<std::function<void()>> m_tasks;
   std::vector<std::thread> m_workers;
   bool m_stopping = false;
-
 };
 } // namespace infra::http

@@ -71,6 +71,12 @@ void MainView::init()
 
 void MainView::render(const MainViewUIData& uiData)
 {
+
+  if (uiData.state == MainViewUIStateType::Loading) {
+    showLoading();
+    return;
+  }
+
   if (uiData.hasError) {
     m_pageLabel.text("Unable to load characters");
     m_previousButton.enabled(false);
@@ -100,26 +106,22 @@ void MainView::onPollTimer(lv_timer_t* timer)
     return;
   }
 
-  if (auto result = self->m_viewModel.poll()) {
+  if (const auto result = self->m_viewModel.poll()) {
     self->render(*result);
-    LOG_INFO("page={}/{}", result->currentPage, result->totalPages);
   }
 }
 
 void MainView::onClick(lv::Event)
 {
   m_viewModel.update();
-  showLoading();
 }
 
 void MainView::onNextPage(lv::Event)
 {
   m_viewModel.nextPage();
-  showLoading();
 }
 
 void MainView::onPreviousPage(lv::Event)
 {
   m_viewModel.previousPage();
-  showLoading();
 }

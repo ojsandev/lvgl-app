@@ -12,60 +12,53 @@
 using namespace data::repository;
 
 CharacterImageRepository::CharacterImageRepository(
-  const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource)
-  : m_demonSlayerDataSource(demonSlayerDataSource)
-{}
+    const std::shared_ptr<datasource::DemonSlayerDataSource>& demonSlayerDataSource)
+  : m_demonSlayerDataSource(demonSlayerDataSource) {}
 
-domain::repository::ICharacterImageRepository::StoreImageResult
-CharacterImageRepository::storeImage(
-  const common::types::Int32 characterId,
-  const std::string& imagePath)
+domain::repository::ICharacterImageRepository::StoreImageResult CharacterImageRepository::storeImage(
+    const common::types::Int32 characterId, const std::string& imagePath)
 {
-  using Result = domain::repository::ICharacterImageRepository::StoreImageValue;
-  common::async::TaskCompletionSource<Result> completion;
+  common::async::TaskCompletionSource<StoreImageValue> completion;
   auto task = completion.task();
 
   try {
     m_demonSlayerDataSource->getCharacterImage(
-      characterId,
-      [completion, imagePath](http::AsyncHttpBytesResult result) mutable {
-        try {
-          if (!result.hasValue()) {
-            result.rethrowError();
-          }
+        characterId, [completion, imagePath](http::AsyncHttpBytesResult result) mutable {
+          try {
+            if (!result.hasValue()) {
+              result.rethrowError();
+            }
 
-          const auto& imageData = result.value();
-          LOG_INFO("Character image received: {} bytes", imageData.size());
+            const auto& imageData = result.value();
+            LOG_INFO("Character image received: {} bytes", imageData.size());
 
-          std::ofstream file(imagePath, std::ios::binary);
-          if (!file) {
+            std::ofstream file(imagePath, std::ios::binary);
+            if (!file) {
+              completion.set_value(domain::model::IOResult{
+                .type = domain::model::IOResultType::Failure,
+                .message = "Failed to open image output file"
+              });
+              return;
+            }
+
+            file.write(reinterpret_cast<const char*>(imageData.data()), static_cast<std::streamsize>(imageData.size()));
+
+            if (!file) {
+              completion.set_value(domain::model::IOResult{
+                .type = domain::model::IOResultType::Failure,
+                .message = "Failed to write image output file"
+              });
+              return;
+            }
+
             completion.set_value(domain::model::IOResult{
-              .type = domain::model::IOResultType::Failure,
-              .message = "Failed to open image output file"
+              .type = domain::model::IOResultType::Success,
+              .message = "Character image stored successfully"
             });
-            return;
+          } catch (...) {
+            completion.set_exception(std::current_exception());
           }
-
-          file.write(
-            reinterpret_cast<const char*>(imageData.data()),
-            static_cast<std::streamsize>(imageData.size()));
-
-          if (!file) {
-            completion.set_value(domain::model::IOResult{
-              .type = domain::model::IOResultType::Failure,
-              .message = "Failed to write image output file"
-            });
-            return;
-          }
-
-          completion.set_value(domain::model::IOResult{
-            .type = domain::model::IOResultType::Success,
-            .message = "Character image stored successfully"
-          });
-        } catch (...) {
-          completion.set_exception(std::current_exception());
-        }
-      });
+        });
   } catch (...) {
     LOG_ERROR("Failed to start image request for characterId {}", characterId);
     completion.set_exception(std::current_exception());

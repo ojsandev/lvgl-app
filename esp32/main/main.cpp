@@ -1,13 +1,11 @@
-#include "ESP32Display.h"
-#include "DemoUseCases.h"
-#include <lv/lv.hpp>
-
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-
+#include <lv/lv.hpp>
 #include <memory>
 
+#include "DemoUseCases.h"
+#include "ESP32Display.h"
 #include "app/ui/MainView.h"
 #include "app/ui/MainViewModel.h"
 

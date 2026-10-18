@@ -1,11 +1,12 @@
 #include "ESP32Touch.h"
 
 #include <cstdlib>
+#include <driver/gpio.h>
 #include <esp_check.h>
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <driver/gpio.h>
+
 #include "ESP32DisplayConfig.h"
 
 using namespace infra::display::esp32;
@@ -141,7 +142,7 @@ void ESP32Touch::initGT911()
 
 bool ESP32Touch::touched() const noexcept
 {
-  constexpr common::types::UInt8 address[] = {0x81, 0x4E};
+  constexpr common::types::UInt8 address[] = { 0x81, 0x4E };
   common::types::UInt8 status = 0;
 
   const esp_err_t result = i2c_master_transmit_receive(m_gt911, address, sizeof(address), &status, sizeof(status), 100);
@@ -193,7 +194,7 @@ bool ESP32Touch::read(common::types::UInt16& x, common::types::UInt16& y) noexce
  */
 void ESP32Touch::ch422gWrite(const common::types::UInt8 reg, const common::types::UInt8 value)
 {
-  const common::types::UInt8 data[] = {reg, value};
+  const common::types::UInt8 data[] = { reg, value };
 
   ESP_ERROR_CHECK(i2c_master_transmit(m_ch422g, data, sizeof(data), 100));
 }

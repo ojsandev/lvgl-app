@@ -10,7 +10,7 @@
 namespace data::http {
 class IHttpClient;
 class IAsyncHttpClient;
-}
+} // namespace data::http
 
 namespace data::datasource {
 class DemonSlayerDataSource {
@@ -18,7 +18,8 @@ public:
   using CharactersCallback = std::function<void(http::AsyncHttpStringResult)>;
   using CharactersImageCallback = std::function<void(http::AsyncHttpBytesResult)>;
 
-  explicit DemonSlayerDataSource(const std::shared_ptr<http::IHttpClient>& httpClient, const std::shared_ptr<http::IAsyncHttpClient>& asyncHttpClient);
+  explicit DemonSlayerDataSource(const std::shared_ptr<http::IHttpClient>& httpClient,
+                                 const std::shared_ptr<http::IAsyncHttpClient>& asyncHttpClient);
   ~DemonSlayerDataSource() = default;
 
   void getCharacters(common::types::Int32 limit, common::types::Int32 page, const CharactersCallback& callback);

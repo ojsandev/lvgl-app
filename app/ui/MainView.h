@@ -1,16 +1,15 @@
 #pragma once
 
-#include <memory>
 #include <lvgl.h>
+#include <memory>
 
 #include "MainViewUIState.h"
-#include "components/CharacterList.h"
 #include "app/display/IDisplay.h"
+#include "components/CharacterList.h"
 #include "lv/core/display.hpp"
 #include "lv/widgets/button.hpp"
 #include "lv/widgets/label.hpp"
 #include "theme/Styles.h"
-
 
 namespace app::ui {
 

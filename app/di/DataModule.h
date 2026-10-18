@@ -7,43 +7,54 @@
 #include "data/repository/CharacterRepository.h"
 #include "data/repository/image/CharacterImageRepository.h"
 #include "infra/http/AsyncBoostBeastHttpClient.h"
-#include "infra/image/ImageResizer.h"
 #include "infra/http/BoostBeastHttpClient.h"
+#include "infra/image/ImageResizer.h"
 
 namespace app::di {
 struct HttpClientImplService;
 struct HttpAsyncClientImplService;
 
-struct WorkerCountService : kgr::single_service<std::size_t>, kgr::supplied {};
+struct WorkerCountService
+  : kgr::single_service<std::size_t>
+  , kgr::supplied
+{};
 
 struct HttpClientService
-    : kgr::abstract_shared_service<data::http::IHttpClient>
-      , kgr::defaults_to<HttpClientImplService> {};
+  : kgr::abstract_shared_service<data::http::IHttpClient>
+  , kgr::defaults_to<HttpClientImplService>
+{};
 
 struct HttpAsyncClientService
-    : kgr::abstract_shared_service<data::http::IAsyncHttpClient>
-      , kgr::defaults_to<HttpAsyncClientImplService> {};
+  : kgr::abstract_shared_service<data::http::IAsyncHttpClient>
+  , kgr::defaults_to<HttpAsyncClientImplService>
+{};
 
 struct HttpAsyncClientImplService
-    : kgr::shared_service<infra::http::AsyncBoostBeastHttpClient, kgr::dependency<WorkerCountService>>
-      , kgr::overrides<HttpAsyncClientService> {};
+  : kgr::shared_service<infra::http::AsyncBoostBeastHttpClient, kgr::dependency<WorkerCountService>>
+  , kgr::overrides<HttpAsyncClientService>
+{};
 
 struct HttpClientImplService
-    : kgr::shared_service<infra::http::BoostBeastHttpClient>
-      , kgr::overrides<HttpClientService> {};
+  : kgr::shared_service<infra::http::BoostBeastHttpClient>
+  , kgr::overrides<HttpClientService>
+{};
 
 struct DemonSlayerDataSource
-    : kgr::shared_service<data::datasource::DemonSlayerDataSource,
-                          kgr::dependency<HttpClientService, HttpAsyncClientService>> {};
+  : kgr::shared_service<data::datasource::DemonSlayerDataSource,
+                        kgr::dependency<HttpClientService, HttpAsyncClientService>>
+{};
 
 struct CharacterRepository
-    : kgr::shared_service<data::repository::CharacterRepository, kgr::dependency<DemonSlayerDataSource>> {};
+  : kgr::shared_service<data::repository::CharacterRepository, kgr::dependency<DemonSlayerDataSource>>
+{};
 
 struct CharacterImageRepository
-    : kgr::shared_service<data::repository::CharacterImageRepository, kgr::dependency<DemonSlayerDataSource>> {};
+  : kgr::shared_service<data::repository::CharacterImageRepository, kgr::dependency<DemonSlayerDataSource>>
+{};
 
 struct ImageResizerRepository
-    : kgr::shared_service<infra::image::ImageResizer>
-      , kgr::defaults_to<domain::repository::IImageResizerRepository> {};
+  : kgr::shared_service<infra::image::ImageResizer>
+  , kgr::defaults_to<domain::repository::IImageResizerRepository>
+{};
 
 } // namespace app::di

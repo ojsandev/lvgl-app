@@ -20,8 +20,8 @@
 
 namespace common::async::detail {
 
-template <typename T>
-struct TaskState {
+template <typename T> struct TaskState
+{
   mutable std::mutex mutex;
   std::optional<T> value;
   std::exception_ptr exception;
@@ -31,8 +31,7 @@ struct TaskState {
 #endif
 };
 
-template <typename T, typename U>
-void completeValue(const std::shared_ptr<TaskState<T>>& state, U&& value)
+template <typename T, typename U> void completeValue(const std::shared_ptr<TaskState<T>>& state, U&& value)
 {
 #if COMMON_ASYNC_HAS_COROUTINES
   std::coroutine_handle<> continuation;
@@ -55,8 +54,7 @@ void completeValue(const std::shared_ptr<TaskState<T>>& state, U&& value)
 #endif
 }
 
-template <typename T>
-void completeException(const std::shared_ptr<TaskState<T>>& state, std::exception_ptr exception)
+template <typename T> void completeException(const std::shared_ptr<TaskState<T>>& state, std::exception_ptr exception)
 {
 #if COMMON_ASYNC_HAS_COROUTINES
   std::coroutine_handle<> continuation;
@@ -66,8 +64,8 @@ void completeException(const std::shared_ptr<TaskState<T>>& state, std::exceptio
     if (state->ready) {
       throw std::logic_error("Task completed more than once");
     }
-    state->exception = exception ? exception : std::make_exception_ptr(
-      std::runtime_error("Task failed without an exception"));
+    state->exception =
+        exception ? exception : std::make_exception_ptr(std::runtime_error("Task failed without an exception"));
     state->ready = true;
 #if COMMON_ASYNC_HAS_COROUTINES
     continuation = std::exchange(state->continuation, {});
@@ -84,11 +82,9 @@ void completeException(const std::shared_ptr<TaskState<T>>& state, std::exceptio
 
 namespace common::async {
 
-template <typename T>
-class TaskCompletionSource;
+template <typename T> class TaskCompletionSource;
 
-template <typename T>
-class Task {
+template <typename T> class Task {
 public:
   Task() = delete;
 
@@ -137,7 +133,8 @@ public:
   }
 
 #if COMMON_ASYNC_HAS_COROUTINES
-  struct Awaiter {
+  struct Awaiter
+  {
     std::shared_ptr<detail::TaskState<T>> state;
 
     bool await_ready() const noexcept
@@ -174,23 +171,28 @@ public:
 
   [[nodiscard]] Awaiter operator co_await() const
   {
-    return Awaiter{m_state};
+    return Awaiter{ m_state };
   }
 
-  struct promise_type {
-    std::shared_ptr<detail::TaskState<T>> state =
-      std::make_shared<detail::TaskState<T>>();
+  struct promise_type
+  {
+    std::shared_ptr<detail::TaskState<T>> state = std::make_shared<detail::TaskState<T>>();
 
     Task get_return_object()
     {
       return Task(state);
     }
 
-    std::suspend_never initial_suspend() const noexcept { return {}; }
-    std::suspend_never final_suspend() const noexcept { return {}; }
+    std::suspend_never initial_suspend() const noexcept
+    {
+      return {};
+    }
+    std::suspend_never final_suspend() const noexcept
+    {
+      return {};
+    }
 
-    template <typename U>
-    void return_value(U&& value)
+    template <typename U> void return_value(U&& value)
     {
       detail::completeValue<T>(state, std::forward<U>(value));
     }
@@ -212,8 +214,7 @@ private:
   friend class TaskCompletionSource<T>;
 };
 
-template <typename T>
-class TaskCompletionSource {
+template <typename T> class TaskCompletionSource {
 public:
   TaskCompletionSource()
     : m_state(std::make_shared<detail::TaskState<T>>())
