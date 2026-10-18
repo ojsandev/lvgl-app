@@ -2,14 +2,15 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
+#include "common/async/Task.h"
 #include "domain/usecase/IUpdateTitleUseCase.h"
 #include "domain/usecase/characters/IGetCharactersUseCase.h"
 
 namespace esp32::demo {
 
-class UpdateTitleUseCase final : public domain::usecase::IUpdateTitleUseCase
-{
+class UpdateTitleUseCase final : public domain::usecase::IUpdateTitleUseCase {
 public:
   std::string execute() override
   {
@@ -17,25 +18,32 @@ public:
   }
 };
 
-class GetCharactersUseCase final : public domain::usecase::IGetCharactersUseCase
-{
+class GetCharactersUseCase final : public domain::usecase::IGetCharactersUseCase {
 public:
-  domain::model::CharacterView execute(const common::types::Int32, const common::types::Int32 page) override
+  Result execute(const common::types::Int32, const common::types::Int32 page) override
   {
-    return createPage(page);
+    return readyPage(page);
   }
 
-  domain::model::CharacterView nextPage() override
+  Result nextPage() override
   {
-    return createPage(2);
+    return readyPage(2);
   }
 
-  domain::model::CharacterView previousPage() override
+  Result previousPage() override
   {
-    return createPage(1);
+    return readyPage(1);
   }
 
 private:
+  static Result readyPage(const common::types::Int32 page)
+  {
+    common::async::TaskCompletionSource<domain::model::CharacterView> completion;
+    auto task = completion.task();
+    completion.set_value(createPage(page));
+    return task;
+  }
+
   static domain::model::CharacterView createPage(const common::types::Int32 page)
   {
     domain::model::CharacterView result = {};
