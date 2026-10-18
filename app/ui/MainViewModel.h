@@ -1,34 +1,43 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "MainViewUIState.h"
-
-namespace domain::model {
-struct CharactersResponse;
-}
+#include "common/async/Task.h"
+#include "domain/model/Character.h"
 
 namespace domain::usecase {
 class IUpdateTitleUseCase;
 class IGetCharactersUseCase;
-} // namespace domain::usecase
+}
 
 namespace app::ui {
+
 class MainViewModel {
 public:
-  explicit MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
-                         const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase);
+  using CharactersTask = common::async::Task<domain::model::CharacterView>;
 
-  MainViewUIData update();
+  explicit MainViewModel(
+    const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
+    const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase);
 
-  MainViewUIData nextPage() const;
+  void update();
+  void nextPage();
+  void previousPage();
 
-  MainViewUIData previousPage() const;
+  [[nodiscard]] bool isLoading() const noexcept;
+  [[nodiscard]] std::optional<MainViewUIData> poll();
 
 private:
+  void startTask(CharactersTask task);
+
   std::string m_title;
   std::shared_ptr<domain::usecase::IUpdateTitleUseCase> m_updateTitleUseCase;
   std::shared_ptr<domain::usecase::IGetCharactersUseCase> m_getCharactersUseCase;
+  std::optional<CharactersTask> m_currentTask;
+  std::optional<MainViewUIData> m_pendingUiData;
 };
+
 } // namespace app::ui
