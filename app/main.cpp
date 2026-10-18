@@ -1,6 +1,6 @@
 #include <kangaru/kangaru.hpp>
 
-#include "App.h"
+#include "platform/sdl/App.h"
 #include "app/di/AppModule.h"
 
 int main()

@@ -10,7 +10,6 @@
 /eim_config.toml
 
 # Conan generated files
-/conan.lock
 .cache/
 .zed/
 

@@ -4,7 +4,7 @@
 
 #include "MainViewUIState.h"
 #include "components/CharacterList.h"
-#include "infra/display/IDisplay.h"
+#include "app/display/IDisplay.h"
 #include "lv/core/display.hpp"
 #include "lv/widgets/button.hpp"
 #include "lv/widgets/label.hpp"
@@ -16,7 +16,7 @@ class MainViewModel;
 
 class MainView {
 public:
-  MainView(infra::display::IDisplay& display, MainViewModel& viewModel);
+  MainView(app::display::IDisplay& display, MainViewModel& viewModel);
   ~MainView() = default;
 
   MainView(const MainView&) = delete;
@@ -33,7 +33,7 @@ private:
 private:
   MainViewModel& m_viewModel;
 
-  infra::display::IDisplay& m_display;
+  app::display::IDisplay& m_display;
   lv::ObjectView m_screen;
 
   theme::Styles m_styles;

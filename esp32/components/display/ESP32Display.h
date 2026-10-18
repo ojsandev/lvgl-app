@@ -5,12 +5,12 @@
 #include <esp_timer.h>
 #include <esp_lcd_panel_rgb.h>
 #include "ESP32Touch.h"
-#include "display/IDisplay.h"
+#include "app/display/IDisplay.h"
 #include "lv/core/display.hpp"
 
 namespace infra::display {
 
-class ESP32Display final : public IDisplay
+class ESP32Display final : public app::display::IDisplay
 {
 public:
   ESP32Display();

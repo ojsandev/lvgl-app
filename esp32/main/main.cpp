@@ -1,5 +1,5 @@
 #include "ESP32Display.h"
-#include "ESP32TestUseCases.h"
+#include "DemoUseCases.h"
 #include <lv/lv.hpp>
 
 #include <esp_log.h>
@@ -26,8 +26,8 @@ extern "C" void app_main(void)
   ESP_LOGI(TAG, "Display initialized: %ld x %ld", static_cast<long>(display.width()),
            static_cast<long>(display.height()));
 
-  auto updateTitleUseCase = std::make_shared<esp32::test::UpdateTitleUseCase>();
-  auto getCharactersUseCase = std::make_shared<esp32::test::GetCharactersUseCase>();
+  auto updateTitleUseCase = std::make_shared<esp32::demo::UpdateTitleUseCase>();
+  auto getCharactersUseCase = std::make_shared<esp32::demo::GetCharactersUseCase>();
 
   app::ui::MainViewModel viewModel(updateTitleUseCase, getCharactersUseCase);
   app::ui::MainView mainView(display, viewModel);

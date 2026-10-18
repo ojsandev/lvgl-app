@@ -2,6 +2,18 @@ cmake_minimum_required(VERSION 3.16)
 
 include(FetchContent)
 
+# Register shared modules as first-class IDF components. Their CMake files
+# select the ESP-IDF branch through ESP_PLATFORM, so sources are owned by the
+# module instead of being listed from a bridge component under esp32/.
+set(
+  EXTRA_COMPONENT_DIRS
+  "${CMAKE_CURRENT_LIST_DIR}/../common"
+  "${CMAKE_CURRENT_LIST_DIR}/../domain"
+  "${CMAKE_CURRENT_LIST_DIR}/../app"
+  CACHE STRING
+  "Shared project ESP-IDF components"
+)
+
 # =========================================================
 # C++ wrapper: aptumfr/lv
 # =========================================================

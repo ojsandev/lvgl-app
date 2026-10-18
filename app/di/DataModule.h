@@ -6,7 +6,7 @@
 #include "data/http/IHttpClient.h"
 #include "data/repository/CharacterRepository.h"
 #include "data/repository/image/CharacterImageRepository.h"
-#include "image/ImageResizer.h"
+#include "infra/image/ImageResizer.h"
 #include "infra/http/BoostBeastHttpClient.h"
 
 namespace app::di {
