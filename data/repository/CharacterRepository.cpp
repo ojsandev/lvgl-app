@@ -30,6 +30,20 @@ void handleError(const Completion& completion, const std::exception_ptr& error)
   }
 }
 
+void processResponse(const data::http::AsyncHttpStringResult& result, const Completion& completion)
+{
+  if (completion.isCancellationRequested()) {
+    static_cast<void>(completion.set_canceled());
+    return;
+  }
+
+  if (!result.hasValue()) {
+    result.rethrowError();
+  }
+
+  static_cast<void>(completion.try_set_value(data::mapper::CharacterMapper::fromJson(result.value())));
+}
+
 } // namespace
 
 CharacterRepository::CharacterRepository(
@@ -45,9 +59,11 @@ CharacterRepository::getCharactersPaginated(const common::types::Int32 limit, co
 
   try {
     m_demonSlayerDataSource->getCharacters(
-        limit, page, [completion, weakSelf = weak_from_this()](const http::AsyncHttpStringResult& result) mutable {
-          if (const auto self = weakSelf.lock()) {
-            self->onResponse(result, completion);
+        limit, page, [completion](const http::AsyncHttpStringResult& result) mutable {
+          try {
+            processResponse(result, completion);
+          } catch (...) {
+            handleError(completion, std::current_exception());
           }
         });
   } catch (...) {
@@ -55,27 +71,4 @@ CharacterRepository::getCharactersPaginated(const common::types::Int32 limit, co
   }
 
   return task;
-}
-
-void CharacterRepository::onResponse(const http::AsyncHttpStringResult& result, const Completion& completion)
-{
-  try {
-    processResponse(result, completion);
-  } catch (...) {
-    handleError(completion, std::current_exception());
-  }
-}
-
-void CharacterRepository::processResponse(const http::AsyncHttpStringResult& result, const Completion& completion)
-{
-  if (completion.isCancellationRequested()) {
-    static_cast<void>(completion.set_canceled());
-    return;
-  }
-
-  if (!result.hasValue()) {
-    result.rethrowError();
-  }
-
-  static_cast<void>(completion.try_set_value(data::mapper::CharacterMapper::fromJson(result.value())));
 }

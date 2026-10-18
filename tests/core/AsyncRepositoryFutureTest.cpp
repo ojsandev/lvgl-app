@@ -15,35 +15,42 @@
 
 namespace {
 
-class StubHttpClient final : public data::http::IHttpClient {
+class StubHttpClient final : public data::http::IHttpClient
+{
 public:
   std::string get(std::string_view) override
   {
     return {};
   }
+
   std::string post(std::string_view, std::string_view, std::string_view) override
   {
     return {};
   }
+
   std::string put(std::string_view, std::string_view, std::string_view) override
   {
     return {};
   }
+
   std::string patch(std::string_view, std::string_view, std::string_view) override
   {
     return {};
   }
+
   std::string delete_(std::string_view) override
   {
     return {};
   }
+
   std::vector<common::types::UInt8> getBytes(std::string_view) override
   {
     return {};
   }
 };
 
-class DeferredAsyncHttpClient final : public data::http::IAsyncHttpClient {
+class DeferredAsyncHttpClient final : public data::http::IAsyncHttpClient
+{
 public:
   void getAsync(std::string_view, StringCompletion completion) override
   {
@@ -114,10 +121,10 @@ bool characterRepositoryTaskStaysPendingUntilCompletion()
 {
   auto httpClient = std::make_shared<StubHttpClient>();
   auto asyncHttpClient = std::make_shared<DeferredAsyncHttpClient>();
-  auto dataSource = std::make_shared<data::datasource::DemonSlayerDataSource>(httpClient, asyncHttpClient);
+  const auto dataSource = std::make_shared<data::datasource::DemonSlayerDataSource>(httpClient, asyncHttpClient);
   data::repository::CharacterRepository repository(dataSource);
 
-  auto task = repository.getCharactersPaginated(20, 1);
+  const auto task = repository.getCharactersPaginated(20, 1);
   if (task.isReady() || !asyncHttpClient->stringCompletion) {
     return false;
   }
@@ -154,7 +161,7 @@ bool imageRepositoryTaskStaysPendingUntilCompletion()
     return false;
   }
 
-  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({ 0x52, 0x49, 0x46, 0x46 }));
+  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({0x52, 0x49, 0x46, 0x46}));
 
   const auto fileExists = std::filesystem::exists(imagePath);
   std::filesystem::remove(imagePath);
@@ -212,7 +219,7 @@ bool cancelledImageRepositoryTaskAvoidsWritingFile()
     return false;
   }
 
-  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({ 0x52, 0x49, 0x46, 0x46 }));
+  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({0x52, 0x49, 0x46, 0x46}));
 
   const auto fileExists = std::filesystem::exists(imagePath);
   std::filesystem::remove(imagePath);

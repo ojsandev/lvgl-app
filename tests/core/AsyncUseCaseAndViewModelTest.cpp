@@ -18,11 +18,11 @@
 
 namespace {
 
-class ImmediateCharacterRepository final : public domain::repository::ICharacterRepository {
+class ImmediateCharacterRepository final : public domain::repository::ICharacterRepository
+{
 public:
   explicit ImmediateCharacterRepository(domain::model::CharactersResponse response)
-    : m_response(std::move(response))
-  {}
+    : m_response(std::move(response)) {}
 
   GetCharactersResult getCharactersPaginated(common::types::Int32, common::types::Int32) override
   {
@@ -36,7 +36,8 @@ private:
   domain::model::CharactersResponse m_response;
 };
 
-class DeferredImageRepository final : public domain::repository::ICharacterImageRepository {
+class DeferredImageRepository final : public domain::repository::ICharacterImageRepository
+{
 public:
   StoreImageResult storeImage(common::types::Int32 characterId, const std::string& imagePath) override
   {
@@ -51,12 +52,12 @@ public:
 
   GetImageResult getImage(common::types::Int32) override
   {
-    return domain::model::IOResult{ .type = domain::model::IOResultType::Failure, .message = "unused" };
+    return domain::model::IOResult{.type = domain::model::IOResultType::Failure, .message = "unused"};
   }
 
   GetImageResult getThumbnail(common::types::Int32) override
   {
-    return domain::model::IOResult{ .type = domain::model::IOResultType::Failure, .message = "unused" };
+    return domain::model::IOResult{.type = domain::model::IOResultType::Failure, .message = "unused"};
   }
 
   bool imageExists(common::types::Int32) override
@@ -83,10 +84,11 @@ public:
   std::vector<common::types::Int32> requestedIds;
   std::vector<std::string> requestedPaths;
   std::vector<common::async::TaskCompletionSource<domain::repository::ICharacterImageRepository::StoreImageValue>>
-      completions;
+  completions;
 };
 
-class RecordingImageResizer final : public domain::repository::IImageResizerRepository {
+class RecordingImageResizer final : public domain::repository::IImageResizerRepository
+{
 public:
   bool createThumbnail(const std::string& inputPath, const std::string& outputPath, common::types::UInt32,
                        common::types::UInt32) override
@@ -98,7 +100,8 @@ public:
   std::vector<std::pair<std::string, std::string>> createdThumbnails;
 };
 
-class StubUpdateTitleUseCase final : public domain::usecase::IUpdateTitleUseCase {
+class StubUpdateTitleUseCase final : public domain::usecase::IUpdateTitleUseCase
+{
 public:
   std::string execute() override
   {
@@ -106,7 +109,8 @@ public:
   }
 };
 
-class DeferredGetCharactersUseCase final : public domain::usecase::IGetCharactersUseCase {
+class DeferredGetCharactersUseCase final : public domain::usecase::IGetCharactersUseCase
+{
 public:
   Result execute(common::types::Int32, common::types::Int32) override
   {
@@ -137,17 +141,27 @@ bool getCharactersUseCaseStartsCharacterWorkConcurrently()
 {
   domain::model::CharactersResponse response = {
     .characters = {
-      { .info = { .id = 1, .name = "Tanjiro", .age = std::nullopt, .gender = "Male", .race = "Human", .description = "One" },
-        .img = "img-1" },
-      { .info = { .id = 2, .name = "Nezuko", .age = std::nullopt, .gender = "Female", .race = "Demon", .description = "Two" },
-        .img = "img-2" },
+      {
+        .info = {
+          .id = 1, .name = "Tanjiro", .age = std::nullopt, .gender = "Male", .race = "Human", .description = "One"
+        },
+        .img = "img-1"
+      },
+      {
+        .info = {
+          .id = 2, .name = "Nezuko", .age = std::nullopt, .gender = "Female", .race = "Demon", .description = "Two"
+        },
+        .img = "img-2"
+      },
     },
-    .pagination = { .totalElements = 2,
-                    .elementsOnPage = 2,
-                    .currentPage = 1,
-                    .totalPages = 3,
-                    .previousPage = "",
-                    .nextPageUrl = "page=2" }
+    .pagination = {
+      .totalElements = 2,
+      .elementsOnPage = 2,
+      .currentPage = 1,
+      .totalPages = 3,
+      .previousPage = "",
+      .nextPageUrl = "page=2"
+    }
   };
 
   auto characterRepository = std::make_shared<ImmediateCharacterRepository>(response);
@@ -162,13 +176,13 @@ bool getCharactersUseCaseStartsCharacterWorkConcurrently()
   }
 
   imageRepository->completions[0].set_value(
-      domain::model::IOResult{ .type = domain::model::IOResultType::Success, .message = "ok" });
+      domain::model::IOResult{.type = domain::model::IOResultType::Success, .message = "ok"});
   if (task.isReady()) {
     return false;
   }
 
   imageRepository->completions[1].set_value(
-      domain::model::IOResult{ .type = domain::model::IOResultType::Success, .message = "ok" });
+      domain::model::IOResult{.type = domain::model::IOResultType::Success, .message = "ok"});
 
   if (!task.isReady() || task.hasError()) {
     return false;
@@ -193,20 +207,30 @@ bool mainViewModelPollsPendingTaskAndCancelsOnDestruction()
     }
 
     getCharactersUseCase->completion.set_value(
-        domain::model::CharacterView{ .characters = { { .info = { .id = 7,
-                                                                  .name = "Zenitsu",
-                                                                  .age = std::nullopt,
-                                                                  .gender = "Male",
-                                                                  .race = "Human",
-                                                                  .description = "Thunder" },
-                                                        .imagePath = "img",
-                                                        .thumbnailPath = "thumb" } },
-                                      .pagination = { .totalElements = 1,
-                                                      .elementsOnPage = 1,
-                                                      .currentPage = 1,
-                                                      .totalPages = 1,
-                                                      .previousPage = "",
-                                                      .nextPageUrl = "" } });
+        domain::model::CharacterView{
+          .characters = {
+            {
+              .info = {
+                .id = 7,
+                .name = "Zenitsu",
+                .age = std::nullopt,
+                .gender = "Male",
+                .race = "Human",
+                .description = "Thunder"
+              },
+              .imagePath = "img",
+              .thumbnailPath = "thumb"
+            }
+          },
+          .pagination = {
+            .totalElements = 1,
+            .elementsOnPage = 1,
+            .currentPage = 1,
+            .totalPages = 1,
+            .previousPage = "",
+            .nextPageUrl = ""
+          }
+        });
 
     const auto readyState = viewModel.poll();
     if (!readyState || readyState->state != app::ui::MainViewUIStateType::Data || readyState->title != "Async title" ||
