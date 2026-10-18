@@ -26,6 +26,16 @@ if(BUILD_TESTING)
   )
   target_link_libraries(async-repository-task-test PRIVATE data)
   add_test(NAME async-repository-task-test COMMAND async-repository-task-test)
+
+  add_executable(
+          task-cxx17-compatibility-test
+          core/TaskCxx17CompatibilityTest.cpp
+  )
+  target_include_directories(task-cxx17-compatibility-test PRIVATE ${CMAKE_SOURCE_DIR})
+  set_property(TARGET task-cxx17-compatibility-test PROPERTY CXX_STANDARD 17)
+  set_property(TARGET task-cxx17-compatibility-test PROPERTY CXX_STANDARD_REQUIRED ON)
+  set_property(TARGET task-cxx17-compatibility-test PROPERTY CXX_EXTENSIONS OFF)
+  add_test(NAME task-cxx17-compatibility-test COMMAND task-cxx17-compatibility-test)
 endif()
 
 if (MSVC)
