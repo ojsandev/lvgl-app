@@ -30,9 +30,9 @@ domain::repository::ICharacterImageRepository::StoreImageResult CharacterImageRe
             }
 
             const auto& imageData = result.value();
-            LOG_INFO("Character image received: {} bytes", imageData.size());
 
-            std::ofstream file(imagePath, std::ios::binary);
+            std::ofstream file(imagePath, std::ios::binary | std::ios::trunc);
+
             if (!file) {
               completion.set_value(domain::model::IOResult{
                 .type = domain::model::IOResultType::Failure,
@@ -43,13 +43,29 @@ domain::repository::ICharacterImageRepository::StoreImageResult CharacterImageRe
 
             file.write(reinterpret_cast<const char*>(imageData.data()), static_cast<std::streamsize>(imageData.size()));
 
+            file.flush();
+
             if (!file) {
+              file.close();
+
               completion.set_value(domain::model::IOResult{
                 .type = domain::model::IOResultType::Failure,
                 .message = "Failed to write image output file"
               });
               return;
             }
+
+            file.close();
+
+            if (file.fail()) {
+              completion.set_value(domain::model::IOResult{
+                .type = domain::model::IOResultType::Failure,
+                .message = "Failed to close image output file"
+              });
+              return;
+            }
+
+            LOG_INFO("Character image fully written and closed: path={}, bytes={}", imagePath, imageData.size());
 
             completion.set_value(domain::model::IOResult{
               .type = domain::model::IOResultType::Success,

@@ -62,10 +62,7 @@ IGetCharactersUseCase::Result GetCharactersUseCase::execute(const common::types:
     try {
       convertedCharacters.push_back(co_await processCharacter(character));
     } catch (const std::exception& error) {
-      LOG_ERROR(
-          "Failed to process characterId {}: {}",
-          character.info.id,
-          error.what());
+      LOG_ERROR("Failed to process characterId {}: {}", character.info.id, error.what());
 
       convertedCharacters.push_back({
         .info = character.info,
@@ -73,9 +70,7 @@ IGetCharactersUseCase::Result GetCharactersUseCase::execute(const common::types:
         .thumbnailPath = ""
       });
     } catch (...) {
-      LOG_ERROR(
-          "Unknown error processing characterId {}",
-          character.info.id);
+      LOG_ERROR("Unknown error processing characterId {}", character.info.id);
 
       convertedCharacters.push_back({
         .info = character.info,
@@ -113,8 +108,6 @@ common::async::Task<domain::model::CharacterWithPath> GetCharactersUseCase::proc
         .thumbnailPath = ""
       };
     }
-    LOG_INFO("Character {}: image download and write completed", info.id);
-    LOG_INFO("Character {}: starting thumbnail generation", info.id);
   }
 
   // Create the thumbnail immediately after the original image is available.
@@ -128,7 +121,6 @@ common::async::Task<domain::model::CharacterWithPath> GetCharactersUseCase::proc
         .thumbnailPath = ""
       };
     }
-    LOG_INFO("Character {}: thumbnail generation completed: {}", info.id, thumbnailPath);
   }
 
   co_return model::CharacterWithPath{
