@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <lvgl.h>
 
 #include "MainViewUIState.h"
 #include "components/CharacterList.h"
@@ -10,8 +11,6 @@
 #include "lv/widgets/label.hpp"
 #include "theme/Styles.h"
 
-struct _lv_timer_t;
-typedef struct _lv_timer_t lv_timer_t;
 
 namespace app::ui {
 
