@@ -1,18 +1,4 @@
-add_executable(
-        tls-test
-        tls/TlsTest.cpp
-)
-
-target_link_libraries(
-        tls-test
-        PRIVATE
-        infra
-)
-
 if(BUILD_TESTING)
-  add_test(NAME tls-test COMMAND tls-test)
-  set_tests_properties(tls-test PROPERTIES LABELS "integration;network" TIMEOUT 30)
-
   add_executable(
           http-exception-test
           core/HttpExceptionTest.cpp
@@ -21,17 +7,17 @@ if(BUILD_TESTING)
   add_test(NAME http-exception-test COMMAND http-exception-test)
 
   add_executable(
-          async-repository-future-test
+          async-repository-task-test
           core/AsyncRepositoryFutureTest.cpp
   )
-  target_link_libraries(async-repository-future-test PRIVATE data)
-  add_test(NAME async-repository-future-test COMMAND async-repository-future-test)
+  target_link_libraries(async-repository-task-test PRIVATE data)
+  add_test(NAME async-repository-task-test COMMAND async-repository-task-test)
 endif()
 
 if (MSVC)
-    set_property(TARGET tls-test PROPERTY CXX_STANDARD 20)
+  target_compile_options(http-exception-test PRIVATE /W4)
+  target_compile_options(async-repository-task-test PRIVATE /W4)
 else()
-    set_property(TARGET tls-test PROPERTY CXX_STANDARD 26)
+  target_compile_options(http-exception-test PRIVATE -Wall -Wextra -Wpedantic)
+  target_compile_options(async-repository-task-test PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-set_property(TARGET tls-test PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET tls-test PROPERTY CXX_EXTENSIONS OFF)
