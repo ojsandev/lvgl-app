@@ -28,6 +28,13 @@ if(BUILD_TESTING)
   add_test(NAME async-repository-task-test COMMAND async-repository-task-test)
 
   add_executable(
+          async-usecase-viewmodel-test
+          core/AsyncUseCaseAndViewModelTest.cpp
+  )
+  target_link_libraries(async-usecase-viewmodel-test PRIVATE app domain)
+  add_test(NAME async-usecase-viewmodel-test COMMAND async-usecase-viewmodel-test)
+
+  add_executable(
           task-cxx17-compatibility-test
           core/TaskCxx17CompatibilityTest.cpp
   )

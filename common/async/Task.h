@@ -6,6 +6,7 @@
 #include <optional>
 #include <stdexcept>
 #include <utility>
+#include <vector>
 
 #if defined(__cpp_impl_coroutine) && __cpp_impl_coroutine >= 201902L && defined(__has_include)
 #if __has_include(<coroutine>)
@@ -26,61 +27,117 @@ template <typename T> struct TaskState
   std::optional<T> value;
   std::exception_ptr exception;
   bool ready = false;
+  bool cancellationRequested = false;
 #if COMMON_ASYNC_HAS_COROUTINES
-  std::coroutine_handle<> continuation{};
+  std::vector<std::coroutine_handle<>> continuations;
 #endif
 };
 
-template <typename T, typename U> void completeValue(const std::shared_ptr<TaskState<T>>& state, U&& value)
+#if COMMON_ASYNC_HAS_COROUTINES
+inline void resumeContinuations(std::vector<std::coroutine_handle<>> continuations)
+{
+  for (auto continuation : continuations) {
+    if (continuation) {
+      continuation.resume();
+    }
+  }
+}
+#endif
+
+template <typename T, typename U> bool tryCompleteValue(const std::shared_ptr<TaskState<T>>& state, U&& value)
 {
 #if COMMON_ASYNC_HAS_COROUTINES
-  std::coroutine_handle<> continuation;
+  std::vector<std::coroutine_handle<>> continuations;
 #endif
   {
     std::lock_guard lock(state->mutex);
     if (state->ready) {
-      throw std::logic_error("Task completed more than once");
+      return false;
     }
     state->value.emplace(std::forward<U>(value));
     state->ready = true;
 #if COMMON_ASYNC_HAS_COROUTINES
-    continuation = std::exchange(state->continuation, {});
+    continuations = std::move(state->continuations);
 #endif
   }
 #if COMMON_ASYNC_HAS_COROUTINES
-  if (continuation) {
-    continuation.resume();
-  }
+  resumeContinuations(std::move(continuations));
 #endif
+  return true;
 }
 
-template <typename T> void completeException(const std::shared_ptr<TaskState<T>>& state, std::exception_ptr exception)
+template <typename T>
+bool tryCompleteException(const std::shared_ptr<TaskState<T>>& state, std::exception_ptr exception)
 {
 #if COMMON_ASYNC_HAS_COROUTINES
-  std::coroutine_handle<> continuation;
+  std::vector<std::coroutine_handle<>> continuations;
 #endif
   {
     std::lock_guard lock(state->mutex);
     if (state->ready) {
-      throw std::logic_error("Task completed more than once");
+      return false;
     }
     state->exception =
         exception ? exception : std::make_exception_ptr(std::runtime_error("Task failed without an exception"));
     state->ready = true;
 #if COMMON_ASYNC_HAS_COROUTINES
-    continuation = std::exchange(state->continuation, {});
+    continuations = std::move(state->continuations);
 #endif
   }
 #if COMMON_ASYNC_HAS_COROUTINES
-  if (continuation) {
-    continuation.resume();
-  }
+  resumeContinuations(std::move(continuations));
 #endif
+  return true;
+}
+
+template <typename T> bool tryCancel(const std::shared_ptr<TaskState<T>>& state, std::exception_ptr exception)
+{
+#if COMMON_ASYNC_HAS_COROUTINES
+  std::vector<std::coroutine_handle<>> continuations;
+#endif
+  {
+    std::lock_guard lock(state->mutex);
+    if (state->ready) {
+      return false;
+    }
+    state->cancellationRequested = true;
+    state->exception =
+        exception ? std::move(exception) : std::make_exception_ptr(std::runtime_error("Task was cancelled"));
+    state->ready = true;
+#if COMMON_ASYNC_HAS_COROUTINES
+    continuations = std::move(state->continuations);
+#endif
+  }
+#if COMMON_ASYNC_HAS_COROUTINES
+  resumeContinuations(std::move(continuations));
+#endif
+  return true;
+}
+
+template <typename T, typename U> void completeValue(const std::shared_ptr<TaskState<T>>& state, U&& value)
+{
+  if (!tryCompleteValue<T>(state, std::forward<U>(value))) {
+    throw std::logic_error("Task completed more than once");
+  }
+}
+
+template <typename T> void completeException(const std::shared_ptr<TaskState<T>>& state, std::exception_ptr exception)
+{
+  if (!tryCompleteException<T>(state, std::move(exception))) {
+    throw std::logic_error("Task completed more than once");
+  }
 }
 
 } // namespace common::async::detail
 
 namespace common::async {
+
+class TaskCanceledException : public std::runtime_error {
+public:
+  TaskCanceledException()
+    : std::runtime_error("Task was cancelled")
+  {}
+};
 
 template <typename T> class TaskCompletionSource;
 
@@ -92,6 +149,23 @@ public:
   {
     std::lock_guard lock(m_state->mutex);
     return m_state->ready;
+  }
+
+  [[nodiscard]] bool isCancellationRequested() const noexcept
+  {
+    std::lock_guard lock(m_state->mutex);
+    return m_state->cancellationRequested;
+  }
+
+  [[nodiscard]] bool isCanceled() const noexcept
+  {
+    std::lock_guard lock(m_state->mutex);
+    return m_state->ready && m_state->cancellationRequested;
+  }
+
+  bool requestCancel() const noexcept
+  {
+    return detail::tryCancel<T>(m_state, std::make_exception_ptr(TaskCanceledException{}));
   }
 
   [[nodiscard]] bool hasError() const
@@ -149,10 +223,7 @@ public:
       if (state->ready) {
         return false;
       }
-      if (state->continuation) {
-        throw std::logic_error("Task supports only one awaiting coroutine");
-      }
-      state->continuation = continuation;
+      state->continuations.push_back(continuation);
       return true;
     }
 
@@ -194,12 +265,12 @@ public:
 
     template <typename U> void return_value(U&& value)
     {
-      detail::completeValue<T>(state, std::forward<U>(value));
+      detail::tryCompleteValue<T>(state, std::forward<U>(value));
     }
 
     void unhandled_exception()
     {
-      detail::completeException<T>(state, std::current_exception());
+      detail::tryCompleteException<T>(state, std::current_exception());
     }
   };
 #endif
@@ -230,9 +301,30 @@ public:
     detail::completeValue<T>(m_state, std::move(value));
   }
 
+  [[nodiscard]] bool try_set_value(T value) const
+  {
+    return detail::tryCompleteValue<T>(m_state, std::move(value));
+  }
+
   void set_exception(std::exception_ptr exception) const
   {
     detail::completeException<T>(m_state, std::move(exception));
+  }
+
+  [[nodiscard]] bool try_set_exception(std::exception_ptr exception) const
+  {
+    return detail::tryCompleteException<T>(m_state, std::move(exception));
+  }
+
+  bool set_canceled() const
+  {
+    return detail::tryCancel<T>(m_state, std::make_exception_ptr(TaskCanceledException{}));
+  }
+
+  [[nodiscard]] bool isCancellationRequested() const noexcept
+  {
+    std::lock_guard lock(m_state->mutex);
+    return m_state->cancellationRequested;
   }
 
 private:

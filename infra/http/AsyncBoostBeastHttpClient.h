@@ -22,11 +22,11 @@ public:
 
   void getAsync(std::string_view url, StringCompletion completion) override;
   void postAsync(std::string_view url, std::string_view body, StringCompletion completion,
-                 std::string_view contentType = "application/json") override;
+                 std::string_view contentType) override;
   void putAsync(std::string_view url, std::string_view body, StringCompletion completion,
-                std::string_view contentType = "application/json") override;
+                std::string_view contentType) override;
   void patchAsync(std::string_view url, std::string_view body, StringCompletion completion,
-                  std::string_view contentType = "application/json") override;
+                  std::string_view contentType) override;
   void deleteAsync(std::string_view url, StringCompletion completion) override;
   void getBytesAsync(std::string_view url, BytesCompletion completion) override;
 

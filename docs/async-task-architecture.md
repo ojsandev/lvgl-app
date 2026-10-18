@@ -11,14 +11,14 @@
 
 common/async/Task.h provides Task<T> and TaskCompletionSource<T>. A task exposes non-blocking readiness checks and a result/error that may only be read once the task is ready. The completion source is used by callback-driven infrastructure adapters; those callbacks are an implementation detail and are not exposed by the ViewModel.
 
-When the compiler enables C++20 coroutine support, Task<T> also provides operator co_await and a coroutine promise type. The continuation is resumed by the thread that completes the awaited task. Desktop HTTP completions occur on the HTTP worker pool, so the character use case resumes off the UI thread.
+When the compiler enables C++20 coroutine support, Task<T> also provides operator co_await and a coroutine promise type. All awaiting coroutines are resumed by the thread that completes the awaited task. Desktop HTTP completions occur on the HTTP worker pool, so the character use case resumes off the UI thread.
 
-A task currently supports one awaiting coroutine and does not implement cancellation. Callers must keep the objects used by an in-flight coroutine alive until the task completes.
+Tasks now support cooperative cancellation from the consumer side. Cancelling a task marks it as ready with a TaskCanceledException and late completions are ignored through TaskCompletionSource::try_set_* helpers. The desktop character use case stores its long-lived dependencies in shared request state so in-flight coroutines stay valid even if the owning use-case instance is released.
 
 ## Desktop flow
 
 1. MainViewModel::update/nextPage/previousPage starts a Task<CharacterView> and returns immediately.
-2. GetCharactersUseCase::execute uses co_await to await the character response and each required image download.
+2. GetCharactersUseCase::execute awaits the character page, starts per-character processing for the whole page, then awaits each result while the downloads continue in parallel.
 3. Image storage and thumbnail creation run after an asynchronous HTTP completion, on a worker thread.
 4. The LVGL timer polls MainViewModel::poll() and calls render() only when a task has completed. No LVGL widgets are accessed from worker threads.
 
@@ -33,5 +33,6 @@ This keeps the UI contract compatible with the separate ESP-IDF toolchain. It do
 ## Validation
 
 - TaskCxx17CompatibilityTest checks the non-coroutine task contract under C++17.
-- AsyncRepositoryFutureTest.cpp now checks deferred repository completion and coroutine resumption in the desktop test dialect.
+- AsyncRepositoryFutureTest.cpp now checks deferred repository completion, multi-await coroutine resumption, and cancellation-safe late completions in the desktop test dialect.
+- AsyncUseCaseAndViewModelTest.cpp checks per-character fan-out in GetCharactersUseCase and task cancellation in MainViewModel shutdown.
 - The full desktop build and an ESP-IDF firmware build still need to run in their respective configured environments; remote repository editing does not itself prove either build passes.

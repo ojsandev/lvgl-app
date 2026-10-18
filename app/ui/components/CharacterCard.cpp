@@ -67,9 +67,15 @@ void CharacterCard::init(const domain::model::CharacterWithPath& character)
 
   m_nameLabel = lv::Label::create(info).text(character.info.name.c_str()).text_color(theme::text());
 
-  m_infoLabel = lv::Label::create(info)
-                    .text_fmt("Age: %d  •  Gender: %s", character.info.age, character.info.gender.c_str())
-                    .text_color(theme::textSecondary());
+  if (character.info.age == std::nullopt) {
+    m_infoLabel = lv::Label::create(info)
+                      .text_fmt("Gender: %s", character.info.gender.c_str())
+                      .text_color(theme::textSecondary());
+  } else {
+    m_infoLabel = lv::Label::create(info)
+                      .text_fmt("Age: %d  •  Gender: %s", character.info.age, character.info.gender.c_str())
+                      .text_color(theme::textSecondary());
+  }
 
   m_descriptionLabel = lv::Label::create(info)
                            .text(character.info.description.c_str())

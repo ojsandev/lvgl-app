@@ -4,8 +4,6 @@
 #include <utility>
 
 #include "common/logger/Logging.h"
-#include "domain/exception/characters/CharacterNotFoundException.h"
-#include "domain/exception/characters/CharactersOutOfBoundsException.h"
 #include "domain/usecase/IUpdateTitleUseCase.h"
 #include "domain/usecase/characters/IGetCharactersUseCase.h"
 
@@ -17,6 +15,11 @@ MainViewModel::MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitle
   , m_getCharactersUseCase(getCharactersUseCase)
 {}
 
+MainViewModel::~MainViewModel()
+{
+  cancelCurrentTask();
+}
+
 void MainViewModel::update()
 {
   if (isLoading()) {
@@ -26,9 +29,6 @@ void MainViewModel::update()
   try {
     m_title = m_updateTitleUseCase->execute();
     startTask(m_getCharactersUseCase->execute(20, 1));
-  } catch (const std::exception& error) {
-    LOG_ERROR("MainViewModel::update: {}", error.what());
-    m_pendingUiData = MainViewUIState::errorState();
   } catch (...) {
     LOG_ERROR("MainViewModel::update: unknown error");
     m_pendingUiData = MainViewUIState::errorState();
@@ -96,13 +96,24 @@ std::optional<MainViewUIData> MainViewModel::poll()
   try {
     const auto& [characters, pagination] = task.result();
     return MainViewUIState::data(m_title, characters, pagination.currentPage, pagination.totalPages);
+  } catch (const common::async::TaskCanceledException&) {
+    return std::nullopt;
   } catch (...) {
     LOG_ERROR("Character task failed with unknown error");
     return MainViewUIState::errorState();
   }
 }
 
+void MainViewModel::cancelCurrentTask() noexcept
+{
+  if (m_currentTask) {
+    m_currentTask->requestCancel();
+    m_currentTask.reset();
+  }
+}
+
 void MainViewModel::startTask(CharactersTask task)
 {
+  cancelCurrentTask();
   m_currentTask.emplace(std::move(task));
 }

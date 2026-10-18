@@ -21,6 +21,7 @@ public:
 
   explicit MainViewModel(const std::shared_ptr<domain::usecase::IUpdateTitleUseCase>& updateTitleUseCase,
                          const std::shared_ptr<domain::usecase::IGetCharactersUseCase>& getCharactersUseCase);
+  ~MainViewModel();
 
   void update();
   void nextPage();
@@ -30,6 +31,7 @@ public:
   [[nodiscard]] std::optional<MainViewUIData> poll();
 
 private:
+  void cancelCurrentTask() noexcept;
   void startTask(CharactersTask task);
 
   std::string m_title;

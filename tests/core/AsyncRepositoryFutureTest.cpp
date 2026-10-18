@@ -98,6 +98,18 @@ bool taskCoroutineResumesWhenDependencyCompletes()
   return chainedTask.isReady() && chainedTask.result() == 42;
 }
 
+bool taskSupportsMultipleAwaiters()
+{
+  common::async::TaskCompletionSource<int> completion;
+  auto sharedTask = completion.task();
+  auto first = awaitAndIncrement(sharedTask);
+  auto second = awaitAndIncrement(sharedTask);
+
+  completion.set_value(9);
+
+  return first.isReady() && second.isReady() && first.result() == 10 && second.result() == 10;
+}
+
 bool characterRepositoryTaskStaysPendingUntilCompletion()
 {
   auto httpClient = std::make_shared<StubHttpClient>();
@@ -159,6 +171,66 @@ bool imageRepositoryTaskStaysPendingUntilCompletion()
   return std::get<domain::model::IOResult>(result).type == domain::model::IOResultType::Success;
 }
 
+bool cancelledCharacterRepositoryTaskIgnoresLateCompletion()
+{
+  auto httpClient = std::make_shared<StubHttpClient>();
+  auto asyncHttpClient = std::make_shared<DeferredAsyncHttpClient>();
+  auto dataSource = std::make_shared<data::datasource::DemonSlayerDataSource>(httpClient, asyncHttpClient);
+  data::repository::CharacterRepository repository(dataSource);
+
+  auto task = repository.getCharactersPaginated(20, 1);
+  if (!asyncHttpClient->stringCompletion || !task.requestCancel() || !task.isReady() || !task.isCanceled()) {
+    return false;
+  }
+
+  asyncHttpClient->stringCompletion(data::http::AsyncHttpStringResult::success(
+      R"({"content":[{"id":1,"name":"Tanjiro","age":16,"gender":"Male","race":"Human","description":"Demon Slayer","img":"https://example.com/tanjiro.webp"}],"pagination":{"totalElements":1,"elementsOnPage":1,"currentPage":1,"totalPages":1}})"));
+
+  try {
+    static_cast<void>(task.result());
+    return false;
+  } catch (const common::async::TaskCanceledException&) {
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
+bool cancelledImageRepositoryTaskAvoidsWritingFile()
+{
+  auto httpClient = std::make_shared<StubHttpClient>();
+  auto asyncHttpClient = std::make_shared<DeferredAsyncHttpClient>();
+  auto dataSource = std::make_shared<data::datasource::DemonSlayerDataSource>(httpClient, asyncHttpClient);
+  data::repository::CharacterImageRepository repository(dataSource);
+
+  const auto imagePath = std::filesystem::temp_directory_path() / "character-image-repository-cancelled-test.webp";
+  std::filesystem::remove(imagePath);
+
+  auto task = repository.storeImage(42, imagePath.string());
+  if (!asyncHttpClient->bytesCompletion || !task.requestCancel() || !task.isReady() || !task.isCanceled()) {
+    std::filesystem::remove(imagePath);
+    return false;
+  }
+
+  asyncHttpClient->bytesCompletion(data::http::AsyncHttpBytesResult::success({ 0x52, 0x49, 0x46, 0x46 }));
+
+  const auto fileExists = std::filesystem::exists(imagePath);
+  std::filesystem::remove(imagePath);
+
+  if (fileExists) {
+    return false;
+  }
+
+  try {
+    static_cast<void>(task.result());
+    return false;
+  } catch (const common::async::TaskCanceledException&) {
+    return true;
+  } catch (...) {
+    return false;
+  }
+}
+
 } // namespace
 
 int main()
@@ -166,10 +238,19 @@ int main()
   if (!taskCoroutineResumesWhenDependencyCompletes()) {
     return 1;
   }
+  if (!taskSupportsMultipleAwaiters()) {
+    return 1;
+  }
   if (!characterRepositoryTaskStaysPendingUntilCompletion()) {
     return 1;
   }
   if (!imageRepositoryTaskStaysPendingUntilCompletion()) {
+    return 1;
+  }
+  if (!cancelledCharacterRepositoryTaskIgnoresLateCompletion()) {
+    return 1;
+  }
+  if (!cancelledImageRepositoryTaskAvoidsWritingFile()) {
     return 1;
   }
   return 0;
