@@ -5,12 +5,15 @@
 #include <mutex>
 #include <optional>
 #include <stdexcept>
-#include <type_traits>
 #include <utility>
 
-#if defined(__cpp_impl_coroutine) && __cpp_impl_coroutine >= 201902L
+#if defined(__cpp_impl_coroutine) && __cpp_impl_coroutine >= 201902L && defined(__has_include)
+#if __has_include(<coroutine>)
 #include <coroutine>
 #define COMMON_ASYNC_HAS_COROUTINES 1
+#else
+#define COMMON_ASYNC_HAS_COROUTINES 0
+#endif
 #else
 #define COMMON_ASYNC_HAS_COROUTINES 0
 #endif
