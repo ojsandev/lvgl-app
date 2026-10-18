@@ -1,5 +1,6 @@
 #include "GetCharactersUseCase.h"
 
+#include <stdexcept>
 #include <variant>
 #include <vector>
 
@@ -46,7 +47,7 @@ GetCharactersUseCase::execute(const common::types::Int32 limit, const common::ty
       throw exception::CharacterNotFoundException();
     }
     LOG_ERROR("Failed to fetch characters; API returned an application error");
-    co_return model::CharacterView{};
+    throw std::runtime_error("Character API returned an application error");
   }
 
   const auto& response = std::get<model::CharactersResponse>(responseResult);
