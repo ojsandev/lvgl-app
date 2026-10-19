@@ -7,8 +7,11 @@
 
 #include "data/http/IAsyncHttpClient.h"
 
-namespace infra::http {
+namespace common::async {
 class WorkerPool;
+}
+
+namespace infra::http {
 
 class AsyncBoostBeastHttpClient final : public data::http::IAsyncHttpClient {
 public:
@@ -33,7 +36,7 @@ public:
 private:
   enum class Method { Get, Post, Put, Patch, Delete };
 
-  std::unique_ptr<WorkerPool> m_workers;
+  std::unique_ptr<common::async::WorkerPool> m_workers;
 
   void requestString(Method method, std::string url, std::string body, std::string contentType,
                      StringCompletion completion);

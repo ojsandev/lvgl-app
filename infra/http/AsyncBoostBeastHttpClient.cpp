@@ -1,22 +1,16 @@
 #include "infra/http/AsyncBoostBeastHttpClient.h"
 
-#include <algorithm>
-#include <condition_variable>
-#include <deque>
 #include <exception>
-#include <functional>
-#include <mutex>
 #include <stdexcept>
 #include <utility>
-#include <vector>
 
+#include "common/async/WorkerPool.h"
 #include "infra/http/BoostBeastHttpClient.h"
-#include "infra/http/WorkerPool.h"
 
 using namespace infra::http;
 
 AsyncBoostBeastHttpClient::AsyncBoostBeastHttpClient(const std::size_t workerCount)
-  : m_workers(std::make_unique<WorkerPool>(workerCount))
+  : m_workers(std::make_unique<common::async::WorkerPool>(workerCount))
 {}
 
 AsyncBoostBeastHttpClient::~AsyncBoostBeastHttpClient() = default;

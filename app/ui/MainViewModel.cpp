@@ -107,7 +107,7 @@ std::optional<MainViewUIData> MainViewModel::poll()
 void MainViewModel::cancelCurrentTask() noexcept
 {
   if (m_currentTask) {
-    m_currentTask->requestCancel();
+    static_cast<void>(m_currentTask->requestCancel());
     m_currentTask.reset();
   }
 }

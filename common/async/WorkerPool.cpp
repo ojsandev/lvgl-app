@@ -1,8 +1,8 @@
-#include "WorkerPool.h"
+#include "common/async/WorkerPool.h"
 
 #include "common/logger/Logging.h"
 
-using namespace infra::http;
+using namespace common::async;
 
 WorkerPool::WorkerPool(const std::size_t workerCount)
 {
@@ -44,9 +44,9 @@ void WorkerPool::run()
     try {
       task();
     } catch (const std::exception& error) {
-      LOG_ERROR("Unhandled exception in async HTTP worker: {}", error.what());
+      LOG_ERROR("Unhandled exception in async worker: {}", error.what());
     } catch (...) {
-      LOG_ERROR("Unhandled non-standard exception in async HTTP worker");
+      LOG_ERROR("Unhandled non-standard exception in async worker");
     }
   }
 }
@@ -62,3 +62,4 @@ void WorkerPool::submit(std::function<void()> task)
   }
   m_condition.notify_one();
 }
+

@@ -69,7 +69,7 @@ CharacterImageRepository::storeImage(const common::types::Int32 characterId, con
               return;
             }
 
-            LOG_INFO("Character image fully written and closed: path={}, bytes={}", imagePath, imageData.size());
+            LOG_DEBUG("Character image fully written and closed: path={}, bytes={}", imagePath, imageData.size());
 
             ioResult = domain::model::IOResult{ .type = domain::model::IOResultType::Success,
                                                 .message = "Character image stored successfully" };

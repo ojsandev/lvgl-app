@@ -12,6 +12,7 @@ if(ESP_PLATFORM)
 endif()
 
 add_library(common STATIC
+        async/WorkerPool.cpp
         logger/Logger.cpp
         logger/LoggerFactory.cpp
 )

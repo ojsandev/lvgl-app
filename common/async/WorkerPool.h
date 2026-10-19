@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-namespace infra::http {
+namespace common::async {
 
 class WorkerPool {
 public:
@@ -26,4 +26,5 @@ private:
   std::vector<std::thread> m_workers;
   bool m_stopping = false;
 };
-} // namespace infra::http
+} // namespace common::async
+
