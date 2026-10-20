@@ -14,7 +14,8 @@ class MyLvlAppConan(ConanFile):
         "boost/1.91.0",
         "openssl/4.0.2",
         "libwebp/1.6.0",
-        "avir/3.1"
+        "avir/3.1",
+        "gtest/1.18.0"
     )
 
     def generate(self):

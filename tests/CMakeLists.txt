@@ -1,39 +1,17 @@
-add_executable(
-        tls-test
-        tls/TlsTest.cpp
-)
+include(GoogleTest)
 
-target_link_libraries(
-        tls-test
-        PRIVATE
-        infra
-)
+function(add_project_test target source)
+  add_executable(${target} ${source})
 
-if(BUILD_TESTING)
-  add_test(NAME tls-test COMMAND tls-test)
-  set_tests_properties(tls-test PROPERTIES LABELS "integration;network" TIMEOUT 30)
-
-  add_executable(
-          http-exception-test
-          core/HttpExceptionTest.cpp
+  target_link_libraries(
+          ${target}
+          PRIVATE
+          GTest::gmock
+          GTest::gtest_main
   )
-  target_link_libraries(http-exception-test PRIVATE data)
-  add_test(NAME http-exception-test COMMAND http-exception-test)
 
-  add_executable(
-          async-repository-task-test
-          core/AsyncRepositoryFutureTest.cpp
-  )
-  target_link_libraries(async-repository-task-test PRIVATE data)
-  add_test(NAME async-repository-task-test COMMAND async-repository-task-test)
-
-  add_executable(
-          async-usecase-viewmodel-test
-          core/AsyncUseCaseAndViewModelTest.cpp
-  )
-  target_link_libraries(async-usecase-viewmodel-test PRIVATE app domain)
-  add_test(NAME async-usecase-viewmodel-test COMMAND async-usecase-viewmodel-test)
-
+  gtest_discover_tests(${target})
+endfunction()
   add_executable(
           task-cxx17-compatibility-test
           core/TaskCxx17CompatibilityTest.cpp
@@ -52,10 +30,8 @@ if(BUILD_TESTING)
   add_test(NAME worker-pool-test COMMAND worker-pool-test)
 endif()
 
-if (MSVC)
-    set_property(TARGET tls-test PROPERTY CXX_STANDARD 20)
-else()
-    set_property(TARGET tls-test PROPERTY CXX_STANDARD 26)
-endif()
-set_property(TARGET tls-test PROPERTY CXX_STANDARD_REQUIRED ON)
-set_property(TARGET tls-test PROPERTY CXX_EXTENSIONS OFF)
+add_subdirectory(mocks)
+add_subdirectory(common)
+add_subdirectory(app)
+add_subdirectory(data)
+add_subdirectory(infra)

@@ -8,6 +8,11 @@ project(
 
 include(CTest)
 
+if (BUILD_TESTING AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  find_package(GTest CONFIG REQUIRED)
+  add_subdirectory(tests)
+endif ()
+
 # =========================================================
 # Language
 # =========================================================
@@ -146,7 +151,6 @@ add_subdirectory(data)
 add_subdirectory(infra)
 add_subdirectory(app)
 add_subdirectory(platform/sdl)
-add_subdirectory(tests)
 
 # =========================================================
 # Application

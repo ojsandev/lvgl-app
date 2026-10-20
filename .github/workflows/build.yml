@@ -144,6 +144,15 @@ jobs:
               -j 4
           fi
 
+      - name: Run all tests
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ctest --test-dir build/debug --output-on-failure -C Debug
+          else
+            ctest --test-dir build/debug --output-on-failure
+          fi
+
       - name: Run deterministic tests
         shell: bash
         run: |
