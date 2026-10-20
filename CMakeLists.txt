@@ -8,11 +8,6 @@ project(
 
 include(CTest)
 
-if (BUILD_TESTING AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-  find_package(GTest CONFIG REQUIRED)
-  add_subdirectory(tests)
-endif ()
-
 # =========================================================
 # Language
 # =========================================================
@@ -168,6 +163,18 @@ target_link_libraries(
         infra
         kangaru
 )
+
+# =========================================================
+# Tests
+# =========================================================
+
+# Add tests only after the project's C++ standard has been restored from
+# the aptumfr/lv dependency. Otherwise Conan's C++17 setting leaks into
+# the test targets, breaking coroutines, spaceship operators and std::format.
+if (BUILD_TESTING AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  find_package(GTest CONFIG REQUIRED)
+  add_subdirectory(tests)
+endif ()
 
 # =========================================================
 # Warnings
