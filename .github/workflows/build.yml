@@ -119,6 +119,7 @@ jobs:
           conan install . \
             -of=build/debug \
             -s build_type=Debug \
+            -s compiler.cppstd=17 \
             -c tools.system.package_manager:mode=install \
             -c tools.system.package_manager:sudo=true \
             --build=missing
@@ -142,6 +143,15 @@ jobs:
           else
             cmake --build build/debug \
               -j 4
+          fi
+
+      - name: Run all tests
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            ctest --test-dir build/debug --output-on-failure -C Debug
+          else
+            ctest --test-dir build/debug --output-on-failure
           fi
 
       - name: Run deterministic tests

@@ -7,6 +7,8 @@
 #include <thread>
 #include <vector>
 
+#include "common/types.h"
+
 namespace common::async {
 
 class WorkerPool {
@@ -15,6 +17,8 @@ public:
   ~WorkerPool();
 
   void submit(std::function<void()> task);
+  types::Int32 getRunningWorkerCount();
+  types::Int32 getRunningTaskCount();
 
 private:
   void run();
